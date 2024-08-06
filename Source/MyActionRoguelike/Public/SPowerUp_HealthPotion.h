@@ -14,8 +14,10 @@ class MYACTIONROGUELIKE_API ASPowerUp_HealthPotion : public APowerUp_Actor
 {
 	GENERATED_BODY()
 
-protected:
+public:
 
+	ASPowerUp_HealthPotion();
+protected:
 
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 	

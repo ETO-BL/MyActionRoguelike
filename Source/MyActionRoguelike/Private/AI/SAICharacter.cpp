@@ -11,7 +11,7 @@ ASAICharacter::ASAICharacter()
 {
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
 }
-
+ 
 void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

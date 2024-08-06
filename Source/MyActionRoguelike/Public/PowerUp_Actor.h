@@ -21,20 +21,22 @@ public:
 
 protected:
 
+	float RespawnTime;
+
+	FTimerHandle TimeHandler_RespawnTime;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<USphereComponent> SphereComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-
 	virtual void Interact_Implementation(APawn* InstigatorPawn);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void ShowPowerUp();
+
+	void SetPowerUpState(bool bNewState);
+
+	void HideAndCoolDown();
 
 };

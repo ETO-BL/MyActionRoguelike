@@ -28,7 +28,7 @@ EBTNodeResult::Type USBTTaskNode_RangedAttack::ExecuteTask(UBehaviorTreeComponen
 		if (TargetActor == nullptr)
 		{
 			return EBTNodeResult::Failed;
-		}
+		} 
 
 		//设置生成位置和方向
 		FVector TargetDirection = TargetActor->GetActorLocation() - MuzzleLocation;

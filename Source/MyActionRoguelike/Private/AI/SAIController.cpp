@@ -21,3 +21,4 @@ void ASAIController::BeginPlay()
 	//	GetBlackboardComponent()->SetValueAsObject("TargetActor", PlayerPawn);
 	//}
 }
+ 

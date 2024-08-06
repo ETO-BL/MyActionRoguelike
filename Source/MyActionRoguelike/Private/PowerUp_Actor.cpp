@@ -18,23 +18,32 @@ APowerUp_Actor::APowerUp_Actor()
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeshComp->SetupAttachment(RootComponent);
 
+	RespawnTime = 10.0f;
 }
 
-// Called when the game starts or when spawned
-void APowerUp_Actor::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 
 void APowerUp_Actor::Interact_Implementation(APawn* InstigatorPawn)
 {
 }
 
-// Called every frame
-void APowerUp_Actor::Tick(float DeltaTime)
+void APowerUp_Actor::SetPowerUpState(bool bNewState)
 {
-	Super::Tick(DeltaTime);
+	SetActorEnableCollision(bNewState);
 
+	RootComponent->SetVisibility(bNewState, true);
 }
+
+void APowerUp_Actor::ShowPowerUp()
+{
+	SetPowerUpState(true);
+}
+
+void APowerUp_Actor::HideAndCoolDown()
+{
+	SetPowerUpState(false);
+
+	GetWorldTimerManager().SetTimer(TimeHandler_RespawnTime, this, &APowerUp_Actor::ShowPowerUp, RespawnTime);
+}
+
+
 
