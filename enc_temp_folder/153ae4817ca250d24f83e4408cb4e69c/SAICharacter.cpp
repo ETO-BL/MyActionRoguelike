@@ -10,6 +10,7 @@
 ASAICharacter::ASAICharacter()
 {
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
+
 }
 
 void ASAICharacter::PostInitializeComponents()
@@ -21,10 +22,15 @@ void ASAICharacter::PostInitializeComponents()
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-	AAIController* AIC = GetController<AAIController>();
-	//»ñÈ¡TargetActor
-	AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", Pawn);
-	UE_LOG(LogTemp, Warning, TEXT("PlayerSpotted"))
+	AAIController* AIC = Cast<AAIController>(Pawn);
+	if (AIC)
+	{
+		UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
+
+		BBComp->SetValueAsObject("TargetActor", Pawn);
+
+
+	}
 }
 
 
