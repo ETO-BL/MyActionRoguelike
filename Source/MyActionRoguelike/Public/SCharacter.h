@@ -11,6 +11,7 @@ class UCameraComponent;
 class USInteractionComponent;
 class UAnimMontage;
 class USAttributeComponent;
+class UParticleSystemComponent;
 
 UCLASS()
 class MYACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -47,6 +48,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Target")
 	float SweepDistanceFallback;
 
+	UPROPERTY(EditAnywhere, Category = "SocketName")
+	FName SocketName;
+
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
@@ -64,6 +68,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USAttributeComponent> AttributeComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttackEffect")
+	TObjectPtr<UParticleSystem>  StartAttackEffect;
 
 
 	// Called when the game starts or when spawned
@@ -88,6 +95,8 @@ protected:
 	void BlackholeAttack_TimeElapsed();
 
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+
+	void ApplyStartAttackEffect();
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);

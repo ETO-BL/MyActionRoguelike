@@ -8,6 +8,9 @@
 #include "SInteractionComponent.h"
 #include "Animation/AnimMontage.h"
 #include "SAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
+
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -24,12 +27,17 @@ ASCharacter::ASCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 
+	
+	StartAttackEffect = CreateDefaultSubobject<UParticleSystem>("StarAttackEffectComp");
+
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	SocketName = "Muzzle_01";
 }
 
 void ASCharacter::PostInitializeComponents()
@@ -113,10 +121,17 @@ void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 	}
 
 }
+
+void ASCharacter::ApplyStartAttackEffect()
+{
+	PlayAnimMontage(AttackAnim);
+
+	UGameplayStatics::SpawnEmitterAttached(StartAttackEffect, GetMesh(), SocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+}
 	
 void ASCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnim);
+	ApplyStartAttackEffect();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AnimDelay);
 
