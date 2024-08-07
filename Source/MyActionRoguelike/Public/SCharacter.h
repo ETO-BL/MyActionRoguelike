@@ -51,6 +51,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "SocketName")
 	FName SocketName;
 
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
 public:
 	// Sets default values for this character's properties
 	ASCharacter();

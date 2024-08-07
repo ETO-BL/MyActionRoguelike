@@ -37,6 +37,8 @@ ASCharacter::ASCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 
+	TimeToHitParamName = "TimeToHit";
+
 	SocketName = "Muzzle_01";
 }
 
@@ -210,6 +212,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ASCharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	//ÊÜµ½¹¥»÷·´À¡
+	GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+
 	//ËÀÍö
 	if (NewHealth <= 0.f && Delta <= 0.f)
 	{

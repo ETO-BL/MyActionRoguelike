@@ -15,13 +15,16 @@ ASAICharacter::ASAICharacter()
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("Attributecomp");
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	TimeToHitParamName = "TimeToHit";
+	TargetActorKey = "TargetActor";
 }
  
 void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnPawnSeen);
+	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnSeePawn);
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChange);
 }
 
@@ -30,7 +33,13 @@ void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent
 	// ‹…À
 	if (Delta < 0.0f)
 	{
+		if (InstigatorActor != this)
+		{
+			SetTargetActor(InstigatorActor);
+		}
 
+		UE_LOG(LogTemp, Warning, TEXT("Flash"));
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
 		if (NewHealth <= 0.f)
 		{
@@ -52,12 +61,29 @@ void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent
 	}
 }
 
-void ASAICharacter::OnPawnSeen(APawn* Pawn)
+void ASAICharacter::SetTargetActor(AActor* NewTarget)
 {
 	AAIController* AIC = GetController<AAIController>();
 	//ªÒ»°TargetActor
-	AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", Pawn);
-	UE_LOG(LogTemp, Warning, TEXT("PlayerSpotted"))
+	AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
+}
+
+AActor* ASAICharacter::GetTargetActor() const
+{
+	AAIController* AIC = GetController<AAIController>();
+	return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject(TargetActorKey));
+}
+
+void ASAICharacter::OnSeePawn(APawn* Pawn)
+{
+	// Ignore if target already set
+	if (GetTargetActor() != Pawn)
+	{
+		SetTargetActor(Pawn);
+
+		
+	}
+	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 0.5f, true);
 }
 
 

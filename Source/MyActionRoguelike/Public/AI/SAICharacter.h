@@ -27,11 +27,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<USAttributeComponent> AttributeComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TargetActorKey;
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	UFUNCTION()
-	void OnPawnSeen(APawn* Pawn);
+	void SetTargetActor(AActor* NewTarget);
+
+	UFUNCTION()
+	AActor* GetTargetActor() const;
+
+	UFUNCTION()
+	void OnSeePawn(APawn* Pawn);
 
 };
