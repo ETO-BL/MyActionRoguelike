@@ -7,7 +7,7 @@
 #include "SAICharacter.generated.h"
 
 class UPawnSensingComponent;
-
+class USAttributeComponent;
 UCLASS()
 class MYACTIONROGUELIKE_API ASAICharacter : public ACharacter
 {
@@ -23,6 +23,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<USAttributeComponent> AttributeComp;
+
+
+	UFUNCTION()
+	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);

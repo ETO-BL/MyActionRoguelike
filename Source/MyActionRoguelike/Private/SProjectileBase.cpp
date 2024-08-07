@@ -54,16 +54,3 @@ void ASProjectileBase::Explode_Implementation()
 		Destroy();
 	}
 }
-
-void ASProjectileBase::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-}
-
-// Called every frame
-void ASProjectileBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

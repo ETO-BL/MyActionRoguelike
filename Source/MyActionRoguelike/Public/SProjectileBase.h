@@ -52,10 +52,4 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Explode();
 
-	virtual void PostInitializeComponents() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

@@ -43,6 +43,8 @@ void ASMagicProjectile::BeginPlay()
 
 }
 
+
+//ÃüÖÐÄ¿±ê
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
@@ -54,7 +56,7 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if (AttributeComp)
 		{
-			AttributeComp->ApplyHealthChanged(-20.0f);
+			AttributeComp->ApplyHealthChanged(DamageAmount);
 
 			Destroy();
 		}

@@ -203,6 +203,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ASCharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	//À¿Õˆ
 	if (NewHealth <= 0.f && Delta <= 0.f)
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());

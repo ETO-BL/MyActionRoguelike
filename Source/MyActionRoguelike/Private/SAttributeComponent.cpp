@@ -19,12 +19,16 @@ bool USAttributeComponent::IsAlive() const
 
 bool USAttributeComponent::ApplyHealthChanged(float Delta)
 {
-	Health += Delta;
+	float OldHealth = Health;
 
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+	Health = FMath::Clamp(Health += Delta, 0, MaxHealth);
+
+	//可能超出血量上限,所以需要计算实际变化血量
+	float ActualDela = Health - OldHealth;
+	OnHealthChanged.Broadcast(nullptr, this, Health, ActualDela);
 
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Health);
-	return true;
+	return ActualDela != 0;
 }
 
 USAttributeComponent* USAttributeComponent::GetAttributeComponent(AActor* FromActor)
