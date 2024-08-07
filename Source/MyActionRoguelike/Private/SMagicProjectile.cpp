@@ -33,6 +33,8 @@ ASMagicProjectile::ASMagicProjectile()
 	AudioComp2 = CreateDefaultSubobject<UAudioComponent>("AudioComp");
 	AudioComp2->SetupAttachment(SphereComp);
 
+	HitEffect = CreateDefaultSubobject<UParticleSystem>("HitEffect");
+
 	Tags.Add(FName("MagicProjectile"));
 }
 
@@ -48,7 +50,7 @@ void ASMagicProjectile::BeginPlay()
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, GetActorLocation(), FRotator::ZeroRotator);
 	UE_LOG(LogTemp, Warning, TEXT("HitActor!!!!!!!"));
 
 	if (OtherActor && OtherActor != GetInstigator())

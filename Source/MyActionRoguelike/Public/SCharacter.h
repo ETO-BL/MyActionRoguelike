@@ -69,8 +69,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USAttributeComponent> AttributeComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttackEffect")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect | AttackEffect")
 	TObjectPtr<UParticleSystem>  StartAttackEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	TSubclassOf<UCameraShakeBase> AttackShake;
 
 
 	// Called when the game starts or when spawned
@@ -97,6 +100,8 @@ protected:
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	void ApplyStartAttackEffect();
+
+	void ApplyAttackShake();
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);

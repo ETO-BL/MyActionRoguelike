@@ -128,10 +128,18 @@ void ASCharacter::ApplyStartAttackEffect()
 
 	UGameplayStatics::SpawnEmitterAttached(StartAttackEffect, GetMesh(), SocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 }
-	
+
+void ASCharacter::ApplyAttackShake()
+{
+	APlayerController* PC = Cast<APlayerController>(this->GetController());
+
+	PC->ClientPlayCameraShake(AttackShake);
+}
+
 void ASCharacter::PrimaryAttack()
 {
 	ApplyStartAttackEffect();
+	ApplyAttackShake();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AnimDelay);
 
@@ -157,7 +165,6 @@ void ASCharacter::Dash()
 	PlayAnimMontage(AttackAnim);
 	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElasped, AnimDelay);
 }
-
 
 void ASCharacter::Dash_TimeElasped()
 {

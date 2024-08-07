@@ -41,6 +41,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TObjectPtr<USoundCue> ImpactSound;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	TSubclassOf<UCameraShakeBase> ImpackShake;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect | AttackEffect")
+	TObjectPtr<UParticleSystem>  HitEffect;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float DamageAmount;
 

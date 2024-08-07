@@ -48,11 +48,16 @@ void ADashProjectile::TeleportInstigator()
 
 		//应用镜头晃动效果
 		APawn* TeleportPawn = Cast<APawn>(TeleportActor);
-		APlayerController* PC = Cast<APlayerController>(TeleportPawn);
-
-		if (PC && PC->IsLocalController())
+		APlayerController* PC = nullptr;
+		if (ensure(TeleportPawn))
 		{
-			PC->ClientPlayCameraShake(ImpactShake);
+			PC = Cast<APlayerController>(TeleportPawn->GetController());
+		}
+
+		if (ensure(PC) && PC->IsLocalController())
+		{
+			PC->ClientPlayCameraShake(DashShake);
+			UE_LOG(LogTemp, Warning, TEXT("Shake!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
 		}
 
 		//传送后再销毁
