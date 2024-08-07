@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "SAttributeComponent.h"
 #include "BrainComponent.h"
+#include "SWorldUserWidget.h"
 
 // Sets default values
 ASAICharacter::ASAICharacter()
@@ -37,7 +38,22 @@ void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent
 		{
 			SetTargetActor(InstigatorActor);
 		}
+		
+		//检查是否已经拥有血条
+		if (ActiveHealthBar == nullptr)
+		{
+			//创建Minion血条
+			ActiveHealthBar = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if (ActiveHealthBar)
+			{
+				//记得构造时获取Attribute绑定到HealthBar
+				ActiveHealthBar->AttachedActor = this;
+				ActiveHealthBar->AddToViewport();
+			}
+		}
+		
 
+		//应用HitFlash
 		UE_LOG(LogTemp, Warning, TEXT("Flash"));
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
