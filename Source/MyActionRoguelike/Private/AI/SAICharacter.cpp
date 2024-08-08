@@ -8,6 +8,8 @@
 #include "SAttributeComponent.h"
 #include "BrainComponent.h"
 #include "SWorldUserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ASAICharacter::ASAICharacter()
@@ -17,6 +19,9 @@ ASAICharacter::ASAICharacter()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
+	
 	TimeToHitParamName = "TimeToHit";
 	TargetActorKey = "TargetActor";
 }
@@ -70,6 +75,10 @@ void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent
 			//死亡启用物理模拟--ragdoll
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
+
+			//来点夸张的效果
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetCharacterMovement()->DisableMovement();
 
 			//Setlifespan
 			SetLifeSpan(10.f);

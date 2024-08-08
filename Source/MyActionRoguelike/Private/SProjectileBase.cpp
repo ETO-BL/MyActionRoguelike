@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 #include <Kismet/GameplayStatics.h>
 
 // Sets default values
@@ -50,6 +51,8 @@ void ASProjectileBase::Explode_Implementation()
 	if (ensure(IsValid(this)))
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
+
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 
 		Destroy();
 	}

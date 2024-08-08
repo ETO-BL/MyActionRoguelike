@@ -5,6 +5,8 @@
 #include "SGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("BL.DrawDebugInteraction"), true, TEXT("Enable Debug line and Sphere for Interaction"), ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -12,11 +14,14 @@ USInteractionComponent::USInteractionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+	
 	// ...
 }
 
 void USInteractionComponent::PrimaryInteract()
 {
+	bool bDrawDebug = CVarDrawDebugInteraction.GetValueOnGameThread();
+
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 
@@ -28,7 +33,7 @@ void USInteractionComponent::PrimaryInteract()
 	//»ñÈ¡EyeLocation, EyeRotation
 	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-	End = EyeLocation + (EyeRotation.Vector() * 1000);
+	End = EyeLocation + (EyeRotation.Vector() * 500);
 
 	//FHitResult Hit;
 	//bool BlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);
@@ -61,7 +66,12 @@ void USInteractionComponent::PrimaryInteract()
 		}
 		
 	}
-	DrawDebugSphere(GetWorld(), TmpHit.ImpactPoint, Radius, 16, LineColor, false, 2.0f);
+	if (bDrawDebug)
+	{
+		DrawDebugSphere(GetWorld(), TmpHit.ImpactPoint, Radius, 16, LineColor, false, 2.0f);
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 0.0f);
+	}
 	
-	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 0.0f);
+	
+	
 }

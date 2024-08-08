@@ -34,6 +34,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat* DiffcultyCurve;
 
+	UPROPERTY(EditAnywhere, Category = "CharacterRespawn")
+	float RespawnDelay;
+
+
 	UFUNCTION()
 	void SpawnBotTimerElapsed();
 
@@ -43,6 +47,11 @@ protected:
 public:
 
 	ASGameModeBase();
+
+	virtual void KillActor(AActor* Victim, AActor* Killer);
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* PlayerToRespawn);
 
 	virtual void StartPlay() override;
 

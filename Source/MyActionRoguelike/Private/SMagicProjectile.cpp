@@ -10,6 +10,8 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
+#include "GameplayFunctionLibrary.h"
+
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -17,21 +19,7 @@ ASMagicProjectile::ASMagicProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
-	SphereComp->SetCollisionProfileName("Projectile");
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
-	RootComponent = SphereComp;
-
-	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
-	EffectComp->SetupAttachment(SphereComp);
-
-	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
-	MovementComp->InitialSpeed = 5000.0f;
-	MovementComp->bRotationFollowsVelocity = true;
-	MovementComp->bInitialVelocityInLocalSpace = true;
-
-	AudioComp2 = CreateDefaultSubobject<UAudioComponent>("AudioComp");
-	AudioComp2->SetupAttachment(SphereComp);
 
 	HitEffect = CreateDefaultSubobject<UParticleSystem>("HitEffect");
 
@@ -55,14 +43,23 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if (AttributeComp)
-		{
-			AttributeComp->ApplyHealthChanged(this, DamageAmount);
+		//USAttributeComponent* AttributeComp = USAttributeComponent::GetAttribute(OtherActor);
+		//if (AttributeComp)
+		//{
+		//	AttributeComp->ApplyHealthChanged(GetInstigator(), DamageAmount);
 
-			Destroy();
+		//	Destroy();
+		//}
+		if (UGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+		{
+
+
+			Explode();
 		}
 	}
+
+
+	
 }
 
 

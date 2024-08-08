@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SProjectileBase.h"
 #include "SMagicProjectile.generated.h"
 
 class USphereComponent;
@@ -13,7 +14,7 @@ class USoundCue;
 class UAudioComponent;
 
 UCLASS()
-class MYACTIONROGUELIKE_API ASMagicProjectile : public AActor
+class MYACTIONROGUELIKE_API ASMagicProjectile : public ASProjectileBase
 {
 	GENERATED_BODY()
 	
@@ -30,19 +31,12 @@ protected:
 	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TObjectPtr<USphereComponent> SphereComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UProjectileMovementComponent> MovementComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TObjectPtr<UParticleSystemComponent> EffectComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	TObjectPtr<USoundCue> ImpactSound;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
-	TSubclassOf<UCameraShakeBase> ImpackShake;
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect | AttackEffect")
 	TObjectPtr<UParticleSystem>  HitEffect;

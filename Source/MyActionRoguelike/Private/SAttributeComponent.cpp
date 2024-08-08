@@ -2,6 +2,10 @@
 
 
 #include "SAttributeComponent.h"
+#include "SGameModeBase.h"
+
+
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("BL.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for AttributeComponent"), ECVF_Cheat);
 
 // Sets default values for this component's properties
 USAttributeComponent::USAttributeComponent()
@@ -19,10 +23,19 @@ bool USAttributeComponent::IsAlive() const
 
 bool USAttributeComponent::ApplyHealthChanged(AActor* Instigator, float Delta)
 {
-	if (!GetOwner()->CanBeDamaged())
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.f)
 	{
 		return false;
 	}
+
+	if (Delta < 0.f)
+	{
+		float DamageMultiper = CVarDamageMultiplier.GetValueOnGameThread();
+
+		Delta *= DamageMultiper;
+
+	}
+
 
 	float OldHealth = Health;
 
@@ -31,6 +44,16 @@ bool USAttributeComponent::ApplyHealthChanged(AActor* Instigator, float Delta)
 	//可能超出血量上限,所以需要计算实际变化血量
 	float ActualDela = Health - OldHealth;
 	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDela);
+
+	//死了
+	if (ActualDela < 0 && Health <= 0)
+	{
+		ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+		if (GameMode)
+		{
+			GameMode->KillActor(GetOwner(), Instigator);
+		}
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Health);
 	return ActualDela != 0;

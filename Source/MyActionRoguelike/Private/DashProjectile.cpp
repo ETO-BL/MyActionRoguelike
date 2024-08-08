@@ -56,7 +56,7 @@ void ADashProjectile::TeleportInstigator()
 
 		if (ensure(PC) && PC->IsLocalController())
 		{
-			PC->ClientPlayCameraShake(DashShake);
+			PC->ClientPlayCameraShake(AttackShake);
 			UE_LOG(LogTemp, Warning, TEXT("Shake!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
 		}
 

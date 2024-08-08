@@ -116,6 +116,8 @@ protected:
 
 	virtual void PostInitializeComponents()override;
 
+	virtual FVector GetPawnViewLocation() const override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

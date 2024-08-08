@@ -232,3 +232,9 @@ void ASCharacter::Heal(float Amount)
 {
 	AttributeComp->ApplyHealthChanged(this, Amount);
 } 
+ 
+//ÐÞ¸´½»»¥ÊÓ½ÇÉèÖÃ
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	return CameraComp->GetComponentLocation();
+}

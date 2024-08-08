@@ -26,7 +26,7 @@ protected:
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
-	TSubclassOf<UCameraShakeBase> DashShake;
+	TSubclassOf<UCameraShakeBase> AttackShake;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
 	TObjectPtr<USoundCue> ImpactSound;
