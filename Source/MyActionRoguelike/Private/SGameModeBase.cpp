@@ -9,6 +9,7 @@
 #include <SAttributeComponent.h>
 #include "EngineUtils.h"
 #include "SCharacter.h"
+#include "SPlayerState.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("BL.SpawnBots"), true, TEXT("Enable Spawning via timer"), ECVF_Cheat);
 
@@ -16,6 +17,13 @@ ASGameModeBase::ASGameModeBase()
 {
 	SpawnInterval = 2.0f;
 	RespawnDelay = 2.f;
+	KillCredits = 10.f;
+
+	MaxPowerUpCount = 5;
+	PowerUpInterval = 80.f;
+
+
+	PlayerStateClass = ASPlayerState::StaticClass();
 }
 
 
@@ -24,6 +32,74 @@ void ASGameModeBase::StartPlay()
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBot, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnInterval, true);
+
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, PowerUpSpawnQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	if (PowerUpClass.Num() > 0)
+	{
+		if (ensure(QueryInstance))
+		{
+			QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnPowerUpSpawnQueryCompleted);
+		}
+	}
+	
+
+}
+
+void ASGameModeBase::OnPowerUpSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		return;
+	}
+
+	//获取所有生成位置
+	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
+	//已使用的位置
+	TArray<FVector> UsedLocations;
+
+	int32 SpawnCount = 0;
+
+	while (SpawnCount < MaxPowerUpCount && Locations.Num() > 0)
+	{
+		//获取随机生成位置
+		int32 RandomLocationIndex = FMath::RandRange(0, Locations.Num() - 1);
+		FVector PickedLocation = Locations[RandomLocationIndex];
+		Locations.RemoveAt(RandomLocationIndex);
+		
+		bool bValidLocation = true;
+		for (FVector Otherlocation : UsedLocations)
+		{
+			float Distance = (PickedLocation - Otherlocation).Size();
+
+			if (Distance < PowerUpInterval)
+			{
+				//太近了
+				bValidLocation = false;
+				break;
+			}
+		}
+
+		//位置太近了就再找一次,直到找到一个间隔不近的位置
+		if (!bValidLocation)
+		{
+			continue;
+		}
+
+		
+		//选择一个随机的PowerUpClass
+		int32 RandomClassIndex = FMath::RandRange(0, PowerUpClass.Num() - 1);
+		TSubclassOf<AActor> RandomPowerUpClass = PowerUpClass[RandomClassIndex];
+
+		FVector Offset(0.0f, 0.0f, 20.0f);  // Z轴偏移量为100单位
+
+		FVector NewLocation = PickedLocation + Offset; 
+
+		GetWorld()->SpawnActor<AActor>(RandomPowerUpClass, NewLocation, FRotator::ZeroRotator);
+
+		//用于距离检测
+		UsedLocations.Add(PickedLocation);
+		SpawnCount++;
+	}
 }
 
 void ASGameModeBase::SpawnBotTimerElapsed()
@@ -64,11 +140,11 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 
 	if (ensure(QueryInstance))
 	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnQueryCompleted);
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnBotQueryCompleted);
 	}
 }
 
-void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+void ASGameModeBase::OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
 	if (QueryStatus != EEnvQueryStatus::Success)
 	{
@@ -102,6 +178,8 @@ void ASGameModeBase::KillAll()
 	}
 }
 
+
+
 void ASGameModeBase::KillActor(AActor* Victim, AActor* Killer)
 {
 	ASCharacter* Player = Cast<ASCharacter>(Victim);
@@ -117,6 +195,15 @@ void ASGameModeBase::KillActor(AActor* Victim, AActor* Killer)
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
 	}
 
+	APawn* KillerPawn = Cast<APawn>(Killer);
+	if (KillerPawn)
+	{
+		ASPlayerState* PlayerState = KillerPawn->GetPlayerState<ASPlayerState>();
+		if (PlayerState)
+		{
+			PlayerState->AddCredits(KillCredits);
+		}
+	}
 }
 
 void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)

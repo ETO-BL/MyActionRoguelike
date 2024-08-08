@@ -19,6 +19,9 @@ public:
 	ASPowerUp_HealthPotion();
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = "CreditCost")
+	float CreditsDelta;
+
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 	
 };

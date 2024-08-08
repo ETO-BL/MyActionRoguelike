@@ -12,11 +12,12 @@ APowerUp_Actor::APowerUp_Actor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
-	RootComponent = SphereComp;
+	SphereComp->SetupAttachment(RootComponent);
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeshComp->SetupAttachment(RootComponent);
+	RootComponent = MeshComp;
+	
 
 	RespawnTime = 10.0f;
 }

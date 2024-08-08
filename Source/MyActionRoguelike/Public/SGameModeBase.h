@@ -37,12 +37,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "CharacterRespawn")
 	float RespawnDelay;
 
+	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+	float KillCredits; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+	int32 MaxPowerUpCount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PowerUpClass")
+	TObjectPtr<UEnvQuery> PowerUpSpawnQuery;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PowerUpClass")
+	TArray<TSubclassOf<AActor>> PowerUpClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PowerUpClass")
+	float PowerUpInterval;
 
 	UFUNCTION()
 	void SpawnBotTimerElapsed();
 
 	UFUNCTION()
-	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	void OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 public:
 
@@ -57,5 +73,8 @@ public:
 
 	UFUNCTION(Exec)
 	void KillAll();
+
+	UFUNCTION()
+	void OnPowerUpSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 	
 };
