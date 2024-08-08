@@ -10,6 +10,7 @@ void USWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+	//ËÀÍöºóÒÆ³ı
 	if (!IsValid(AttachedActor))
 	{
 		RemoveFromParent();

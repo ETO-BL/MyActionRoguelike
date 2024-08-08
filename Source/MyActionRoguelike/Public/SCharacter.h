@@ -18,7 +18,14 @@ class MYACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-protected:
+public:
+	// Sets default values for this character's properties
+	ASCharacter();
+
+	UFUNCTION(Exec)
+	void Heal(float Amount = 100);
+
+
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -54,9 +61,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
 
-public:
-	// Sets default values for this character's properties
-	ASCharacter();
+
 
 protected:
 

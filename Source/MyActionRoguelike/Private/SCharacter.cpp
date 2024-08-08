@@ -42,6 +42,8 @@ ASCharacter::ASCharacter()
 	SocketName = "Muzzle_01";
 }
 
+
+
 void ASCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -226,3 +228,7 @@ void ASCharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* 
 	}
 }
 
+void ASCharacter::Heal(float Amount)
+{
+	AttributeComp->ApplyHealthChanged(this, Amount);
+} 

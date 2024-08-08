@@ -17,15 +17,20 @@ bool USAttributeComponent::IsAlive() const
 }
 
 
-bool USAttributeComponent::ApplyHealthChanged(float Delta)
+bool USAttributeComponent::ApplyHealthChanged(AActor* Instigator, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
+
 	float OldHealth = Health;
 
 	Health = FMath::Clamp(Health += Delta, 0, MaxHealth);
 
 	//可能超出血量上限,所以需要计算实际变化血量
 	float ActualDela = Health - OldHealth;
-	OnHealthChanged.Broadcast(nullptr, this, Health, ActualDela);
+	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDela);
 
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Health);
 	return ActualDela != 0;
@@ -51,6 +56,12 @@ float USAttributeComponent::GetMaxHealth()
 	return MaxHealth;
 }
 
+float USAttributeComponent::GetHealth()
+{
+	return Health;
+}
+
+
 
 USAttributeComponent* USAttributeComponent::GetAttribute(AActor* FromActor)
 {
@@ -72,4 +83,9 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	}
 
 	return false;
+}
+
+bool USAttributeComponent::Kill(AActor* Instigator)
+{
+	return ApplyHealthChanged(Instigator, -GetMaxHealth());
 }
