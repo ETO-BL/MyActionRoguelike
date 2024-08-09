@@ -84,6 +84,13 @@ void ASCharacter::MoveRight(float value)
 	AddMovementInput(RightVector, value);
 }
 
+void ASCharacter::ApplyAttackShake()
+{
+	APlayerController* PC = Cast<APlayerController>(this->GetController());
+
+	PC->ClientPlayCameraShake(AttackShake);
+}
+
 void ASCharacter::PrimaryAttack()
 {
 	ActionComp->StartActionByName(this, "PrimaryAttack");
