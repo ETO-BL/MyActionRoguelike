@@ -15,6 +15,7 @@ bool UGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* TargetA
 	return false;
 }
 
+//对Minion施加力
 bool UGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult& HitResult)
 {
 	if (ApplyDamage(DamageCauser, TargetActor, DamageAmount))
@@ -23,7 +24,13 @@ bool UGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AAct
 		UPrimitiveComponent* HitComp = HitResult.GetComponent();
 		if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName))
 		{			
-			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 300000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+			FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
+			Direction.Normalize();
+
+			//修正施加力的方向
+			HitComp->AddImpulseAtLocation(Direction * 300000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+			//集中点的法线方向
+			//HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 300000.0f, HitResult.ImpactPoint, HitResult.BoneName);
 			return true;
 		}
 	}

@@ -2,15 +2,46 @@
 
 
 #include "SAction.h"
+#include "SActionComponent.h"
+
+
+bool USAction::CanStart_Implementation(AActor* Instigator)
+{
+	if (IsRunning())
+	{
+		return false;
+	}
+
+	USActionComponent* Comp = GetOwningComponent();
+
+	if (Comp->ActiveGameplayTags.HasAny(BlockTags))
+	{
+		return false;
+	}
+
+	return true;
+}
 
 void USAction::StartAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Running: %s"), *GetNameSafe(this));
+
+	USActionComponent* Comp = GetOwningComponent();
+	Comp->ActiveGameplayTags.AppendTags(GrantTags);
+
+	bIsRunning = true;
 }
 
 void USAction::StopAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stoped: %s"), *GetNameSafe(this));
+
+	ensureAlways(bIsRunning);
+
+	USActionComponent* Comp = GetOwningComponent();
+	Comp->ActiveGameplayTags.RemoveTags(GrantTags);
+
+	bIsRunning = false;
 }
 
 UWorld* USAction::GetWorld() const
@@ -23,3 +54,15 @@ UWorld* USAction::GetWorld() const
 	}
 	return nullptr;
 }
+
+USActionComponent* USAction::GetOwningComponent() const
+{
+	return Cast<USActionComponent>(GetOuter());
+}
+
+bool USAction::IsRunning()
+{
+	return bIsRunning;
+}
+
+

@@ -26,8 +26,6 @@ public:
 	UFUNCTION(Exec)
 	void Heal(float Amount = 100);
 
-
-
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Effects")

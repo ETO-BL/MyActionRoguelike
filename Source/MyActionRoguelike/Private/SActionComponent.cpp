@@ -2,14 +2,14 @@
 
 
 #include "SActionComponent.h"
-
+#include "SAction.h"
 
 
 USActionComponent::USActionComponent()
 {
-	
 	PrimaryComponentTick.bCanEverTick = true;
 
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -17,18 +17,22 @@ void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (TSubclassOf<USAction> ActionClass : DefaultActions)
+	if (GetOwner())
 	{
-		AddAction(ActionClass);
+		for (TSubclassOf<USAction> ActionClass : DefaultActions)
+		{
+			AddAction(ActionClass);
+		}
 	}
-
 }
-
 
 void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	//显示当前角色Tag
+	FString DebugMessage = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugMessage);
 }
 
 void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
@@ -54,8 +58,16 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
 	for (USAction* Action : Actions)
 	{
+		//找到要执行的技能
 		if (Action && Action->ActionName == ActionName)
 		{
+			if (!Action->CanStart(Instigator))
+			{
+				FString DebugMessage = FString::Printf(TEXT("Failed to run : %s"), *ActionName.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, DebugMessage);
+				continue;
+			}
+
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -70,8 +82,11 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	{
 		if (Action && Action->ActionName == ActionName)
 		{
-			Action->StopAction(Instigator);
-			return true;
+			if (Action->IsRunning())
+			{
+				Action->StopAction(Instigator);
+				return true;
+			}			
 		}
 	}
 
