@@ -7,8 +7,6 @@
 
 ASPowerUp_Credit::ASPowerUp_Credit()
 {
-	RootComponent = MeshComp;
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CreditsToAdd = 50.f;
 }
 

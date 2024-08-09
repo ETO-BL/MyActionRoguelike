@@ -8,10 +8,6 @@
 
 ASPowerUp_HealthPotion::ASPowerUp_HealthPotion()
 {
-
-	//父类已经初始化MeshComp,无需再次创建
-	RootComponent = MeshComp;
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CreditsDelta = 20.f;
 }
 
