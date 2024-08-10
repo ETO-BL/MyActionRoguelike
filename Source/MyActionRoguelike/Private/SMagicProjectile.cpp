@@ -33,9 +33,11 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		//检查是否可以反弹 
 		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
 		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Parrying"));
 			MoveComp->Velocity = -MoveComp->Velocity;
 			SetInstigator(Cast<APawn>(OtherActor));
 			return;
