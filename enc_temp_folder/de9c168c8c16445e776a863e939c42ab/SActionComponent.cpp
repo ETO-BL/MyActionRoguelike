@@ -22,7 +22,7 @@ void USActionComponent::BeginPlay()
 		for (TSubclassOf<USAction> ActionClass : DefaultActions)
 		{
 			AddAction(ActionClass, GetOwner());
-
+			UE_LOG(LogTemp, Warning, TEXT("AddAction: %s"), *ActionClass->GetName());
 		}
 	}
 }

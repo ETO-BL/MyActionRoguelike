@@ -34,10 +34,8 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		
-		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
-		
 		//检查是否可以反弹 
+		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
 		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Parrying"));
@@ -46,16 +44,14 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 			return;
 		}
 
-		if (ActionComp)
-		{
-			ActionComp->AddAction(BurnningActionClass, GetInstigator());
-		}
-
 		//造成伤害, Explode()播放效果和声音,然后销毁
 		if (UGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
-			
+			if (ActionComp)
+			{
+				ActionComp->AddAction(BurnningActionClass, GetInstigator());
+			}
 		}
 	}
 

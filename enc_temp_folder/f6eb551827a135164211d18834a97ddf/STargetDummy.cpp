@@ -4,7 +4,7 @@
 #include "STargetDummy.h"
 #include "Components/StaticMeshComponent.h"
 #include "SAttributeComponent.h"
-#include "SActionComponent.h"
+
 // Sets default values
 ASTargetDummy::ASTargetDummy()
 {
@@ -12,7 +12,6 @@ ASTargetDummy::ASTargetDummy()
 	RootComponent = MeshComp;
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
-	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
 }
 
 void ASTargetDummy::PostInitializeComponents()

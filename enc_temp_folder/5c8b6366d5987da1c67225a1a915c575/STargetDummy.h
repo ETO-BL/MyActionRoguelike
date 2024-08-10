@@ -7,7 +7,6 @@
 #include "STargetDummy.generated.h"
 
 class USAttributeComponent;
-class USActionComponent;
 
 UCLASS()
 class MYACTIONROGUELIKE_API ASTargetDummy : public AActor
@@ -27,9 +26,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> MeshComp;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USActionComponent> ActionComp;
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
