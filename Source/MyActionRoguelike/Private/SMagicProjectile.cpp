@@ -12,7 +12,6 @@
 #include "Components/AudioComponent.h"
 #include "GameplayFunctionLibrary.h"
 #include "SActionComponent.h"
-#include "SActionEffect.h"
 
 
 // Sets default values
@@ -46,12 +45,9 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 		if (UGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
-
-
-			if (ensure(ActionComp))
-			{
-				ActionComp->AddAction(GetInstigator(), BurnningActionClass);
-			}
 		}
 	}
+
+
+	
 }
