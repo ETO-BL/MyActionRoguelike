@@ -9,6 +9,8 @@
 class UPawnSensingComponent;
 class USAttributeComponent;
 class USWorldUserWidget;
+class USActionComponent;
+
 
 UCLASS()
 class MYACTIONROGUELIKE_API ASAICharacter : public ACharacter
@@ -29,6 +31,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<USAttributeComponent> AttributeComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<USActionComponent> ActionComp;
+
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TargetActorKey;
 
@@ -40,6 +45,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	USWorldUserWidget* ActiveHealthBar;
+
+
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);

@@ -10,13 +10,14 @@
 #include "SWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "SActionComponent.h"
 
 // Sets default values
 ASAICharacter::ASAICharacter()
 {
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("Attributecomp");
-
+	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
@@ -29,6 +30,8 @@ ASAICharacter::ASAICharacter()
 void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	
 
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnSeePawn);
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChange);

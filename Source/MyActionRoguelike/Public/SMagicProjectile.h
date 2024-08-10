@@ -13,6 +13,7 @@ class UProjectileMovementComponent;
 class UParticleSystemComponent;
 class USoundCue;
 class UAudioComponent;
+class USActionEffect;
 
 UCLASS()
 class MYACTIONROGUELIKE_API ASMagicProjectile : public ASProjectileBase
@@ -30,6 +31,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float DamageAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	TSubclassOf<USActionEffect> BurnningActionClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	FGameplayTag ParryTag;
