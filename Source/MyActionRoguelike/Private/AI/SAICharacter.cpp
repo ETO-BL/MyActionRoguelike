@@ -26,6 +26,8 @@ ASAICharacter::ASAICharacter()
 	
 	TimeToHitParamName = "TimeToHit";
 	TargetActorKey = "TargetActor";
+
+	PawnSensingComp->SightRadius = 1500.f;
 }
  
 void ASAICharacter::PostInitializeComponents()
@@ -108,9 +110,14 @@ void ASAICharacter::OnSeePawn(APawn* Pawn)
 	{
 		SetTargetActor(Pawn);
 
-		
+		SopttedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+		if (SopttedWidget)
+		{
+			SopttedWidget->AttachedActor = this;
+			SopttedWidget->AddToViewport(1);
+		}
 	}
-	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 0.5f, true);
+	//DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 0.5f, true);
 }
 
 

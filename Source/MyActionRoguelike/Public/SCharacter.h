@@ -77,8 +77,6 @@ protected:
 
 	void BlackholeAttack();
 
-	void ApplyAttackShake();
-
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 

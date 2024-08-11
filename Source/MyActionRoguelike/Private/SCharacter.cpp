@@ -146,8 +146,15 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ASCharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-	//受到攻击反馈
-	GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	//受到攻击
+	if (Delta < 0.f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+
+		const float RageDelta = FMath::Abs(Delta);
+		AttributeComp->AddRage(InstigatorActor, RageDelta);
+	}
+
 
 	//死亡
 	if (NewHealth <= 0.f && Delta <= 0.f)

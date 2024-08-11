@@ -33,7 +33,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USActionComponent>  ActionComp;
 
-
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TargetActorKey;
 
@@ -45,6 +44,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	USWorldUserWidget* ActiveHealthBar;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<USWorldUserWidget> SpottedWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	USWorldUserWidget* SopttedWidget;
 
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);

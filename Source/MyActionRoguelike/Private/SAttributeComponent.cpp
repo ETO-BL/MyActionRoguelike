@@ -12,6 +12,8 @@ USAttributeComponent::USAttributeComponent()
 {
 	Health = 100;
 	MaxHealth = 100;
+	Rage = 50;
+	MaxRage = 100;
 }
 
 
@@ -39,7 +41,7 @@ bool USAttributeComponent::ApplyHealthChanged(AActor* Instigator, float Delta)
 
 	float OldHealth = Health;
 
-	Health = FMath::Clamp(Health += Delta, 0, MaxHealth);
+	Health = FMath::Clamp(Health + Delta, 0, MaxHealth);
 
 	//可能超出血量上限,所以需要计算实际变化血量
 	float ActualDela = Health - OldHealth;
@@ -84,8 +86,6 @@ float USAttributeComponent::GetHealth()
 	return Health;
 }
 
-
-
 USAttributeComponent* USAttributeComponent::GetAttribute(AActor* FromActor)
 {
 	if (FromActor)
@@ -111,4 +111,31 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 bool USAttributeComponent::Kill(AActor* Instigator)
 {
 	return ApplyHealthChanged(Instigator, -GetMaxHealth());
+}
+
+bool USAttributeComponent::AddRage(AActor* Instigator, float Delta)
+{
+	float OldRage = Rage;
+	Rage = FMath::Clamp(Rage + Delta, 0, MaxRage);
+
+	float ActualDelta = Rage - OldRage;
+
+	OnRageChanged.Broadcast(Instigator, this, Rage, ActualDelta);
+	
+	return FMath::IsNearlyZero(ActualDelta);
+}
+
+float USAttributeComponent::GetRage()
+{
+	return Rage;
+}
+
+float USAttributeComponent::GetMaxRage()
+{
+	return MaxRage;
+}
+
+bool USAttributeComponent::IsFullRage()
+{
+	return Rage >= MaxRage;
 }
