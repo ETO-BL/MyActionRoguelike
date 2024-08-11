@@ -26,6 +26,7 @@ void USAction::StartAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Running: %s"), *GetNameSafe(this));
 
+	//添加技能
 	USActionComponent* Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.AppendTags(GrantTags);
 
@@ -38,6 +39,7 @@ void USAction::StopAction_Implementation(AActor* Instigator)
 
 	ensureAlways(bIsRunning);
 
+	//去掉Tag--机能
 	USActionComponent* Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.RemoveTags(GrantTags);
 

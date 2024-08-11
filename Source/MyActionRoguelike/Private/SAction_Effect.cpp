@@ -8,7 +8,7 @@ USAction_Effect::USAction_Effect()
 {
 	bAutoStart = true;
 }
-
+//Burnning
 void USAction_Effect::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
@@ -43,6 +43,7 @@ void USAction_Effect::StopAction_Implementation(AActor* Instigator)
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Period);
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Duration);
 
+	//º«µ√»•µÙTag
 	USActionComponent* Comp = GetOwningComponent();
 	if (Comp)
 	{
