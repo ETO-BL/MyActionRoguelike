@@ -38,7 +38,7 @@ void ASItemChest::OnRep_LidOpened()
 	LidMesh->SetRelativeRotation(FRotator(CurrentPitch, 0.f, 0.f));
 }
 
-
+//更新复制属性
 void ASItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

@@ -3,6 +3,7 @@
 
 #include "SAttributeComponent.h"
 #include "SGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("BL.DamageMultiplier"), 1.0f, TEXT("Global Damage Modifier for AttributeComponent"), ECVF_Cheat);
@@ -14,7 +15,10 @@ USAttributeComponent::USAttributeComponent()
 	MaxHealth = 100;
 	Rage = 50;
 	MaxRage = 100;
+
+	SetIsReplicatedByDefault(true);
 }
+
 
 
 bool USAttributeComponent::IsAlive() const
@@ -45,7 +49,14 @@ bool USAttributeComponent::ApplyHealthChanged(AActor* Instigator, float Delta)
 
 	//可能超出血量上限,所以需要计算实际变化血量
 	float ActualDela = Health - OldHealth;
-	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDela);
+	//OnHealthChanged.Broadcast(Instigator, this, Health, ActualDela);
+
+
+	if (ActualDela != 0.f)
+	{
+		MulticastHealthChanged(Instigator, Health, ActualDela);
+	}
+	
 
 	//死了
 	if (ActualDela < 0 && Health <= 0)
@@ -138,4 +149,23 @@ float USAttributeComponent::GetMaxRage()
 bool USAttributeComponent::IsFullRage()
 {
 	return Rage >= MaxRage;
+}
+
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(USAttributeComponent, Health);
+	DOREPLIFETIME(USAttributeComponent, MaxHealth);
+	
+	//先运行起来再优化
+	//仅仅为了优化  只发送必要的数据
+	//DOREPLIFETIME_CONDITION(USAttributeComponent, MaxHealth, COND_OwnerOnly);
+	//DOREPLIFETIME_CONDITION(USAttributeComponent, MaxHealth, COND_InitialOnly);
+}
+
+void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* Instigator, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(Instigator, this, NewHealth, Delta);
 }

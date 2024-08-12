@@ -3,6 +3,7 @@
 
 #include "SActionComponent.h"
 #include "SAction.h"
+#include "Net/UnrealNetwork.h"
 
 
 USActionComponent::USActionComponent()
@@ -11,6 +12,7 @@ USActionComponent::USActionComponent()
 
 	SetIsReplicatedByDefault(true);
 }
+
 
 
 void USActionComponent::BeginPlay()
@@ -80,6 +82,11 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				continue;
 			}
 
+			if (!GetOwner()->HasAuthority())
+			{
+				ServerStartAction(Instigator, ActionName);
+			}
+
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -87,6 +94,12 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 
 	return false;
 }
+
+void USActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName AcitonName)
+{
+	StartActionByName(Instigator, AcitonName);
+}
+
 
 bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 {

@@ -28,17 +28,21 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated, Category = "Attribute")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated, Category = "Attribute")
 	float MaxHealth;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated, Category = "Attribute")
 	float Rage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated, Category = "Attribute")
 	float MaxRage;
+
+	//NetMulticast用于瞬时的短暂的事件, 只在Server执行  reliable吃性能, unreliable用于优化
+	UFUNCTION(NetMulticast, Reliable) //@FixMe: mark as unreliable once we move the "State" out of character
+	void MulticastHealthChanged(AActor* Instigator, float Newhealth, float Delta);
 
 public:	
 
