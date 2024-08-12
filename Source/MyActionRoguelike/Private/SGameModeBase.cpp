@@ -22,7 +22,7 @@ ASGameModeBase::ASGameModeBase()
 	MaxPowerUpCount = 5;
 	PowerUpInterval = 80.f;
 
-	
+
 
 	PlayerStateClass = ASPlayerState::StaticClass();
 }

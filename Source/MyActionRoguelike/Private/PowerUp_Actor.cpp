@@ -20,6 +20,9 @@ APowerUp_Actor::APowerUp_Actor()
 	
 
 	RespawnTime = 10.0f;
+
+
+	SetReplicates(true);
 }
 
 
