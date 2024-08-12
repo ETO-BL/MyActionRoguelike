@@ -17,12 +17,13 @@ class MYACTIONROGUELIKE_API ASPlayerState : public APlayerState
 
 protected:
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRe_Credits, Category = "Credits")
 	float Credits;
 
+	UFUNCTION()
+	void OnRe_Credits(float OldCredits);
+
 	
-
-
 public:
 	
 	UPROPERTY(BlueprintAssignable)

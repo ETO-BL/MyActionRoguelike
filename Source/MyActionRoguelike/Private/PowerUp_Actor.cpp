@@ -4,6 +4,7 @@
 #include "PowerUp_Actor.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 APowerUp_Actor::APowerUp_Actor()
@@ -23,6 +24,12 @@ APowerUp_Actor::APowerUp_Actor()
 
 
 	SetReplicates(true);
+}
+
+void APowerUp_Actor::OnRep_IsAlive()
+{
+	SetActorEnableCollision(bIsAlive);
+	RootComponent->SetVisibility(bIsAlive, true);
 }
 
 
@@ -49,5 +56,11 @@ void APowerUp_Actor::HideAndCoolDown()
 	GetWorldTimerManager().SetTimer(TimeHandler_RespawnTime, this, &APowerUp_Actor::ShowPowerUp, RespawnTime);
 }
 
+//更新复制属性到服务器
+void APowerUp_Actor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(APowerUp_Actor, bIsAlive);
+}
 

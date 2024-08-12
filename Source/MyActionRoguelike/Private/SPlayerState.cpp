@@ -2,12 +2,21 @@
 
 
 #include "SPlayerState.h"
+#include "Net/UnrealNetwork.h"
 
 ASPlayerState::ASPlayerState()
 {
 	Credits = 100.0f;
+
+	//  PlayerState默认进行网络复制
+	//	SetIsReplicatedByDefault(true);
 }
 
+
+void ASPlayerState::OnRe_Credits(float OldCredits)
+{
+	OnCreditsChanged.Broadcast(this, Credits, Credits - OldCredits);
+}
 
 float ASPlayerState::GetCredits()
 {
@@ -42,4 +51,10 @@ bool ASPlayerState::DelCredits(float Delta)
 }
 
 
+void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	// 添加 Credits 属性到复制列表
+	DOREPLIFETIME(ASPlayerState, Credits);
+}

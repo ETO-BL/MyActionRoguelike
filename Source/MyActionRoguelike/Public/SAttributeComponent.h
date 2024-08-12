@@ -44,6 +44,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable) //@FixMe: mark as unreliable once we move the "State" out of character
 	void MulticastHealthChanged(AActor* Instigator, float Newhealth, float Delta);
 
+	UFUNCTION(NetMulticast, Unreliable) //@FixMe: mark as unreliable once we move the "State" out of character
+	void MulticastRageChanged(AActor* Instigator, float NewRage, float Delta);
+
 public:	
 
 	UPROPERTY(BlueprintAssignable, Category = "Attribute")

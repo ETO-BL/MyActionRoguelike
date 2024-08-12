@@ -130,8 +130,13 @@ bool USAttributeComponent::AddRage(AActor* Instigator, float Delta)
 	Rage = FMath::Clamp(Rage + Delta, 0, MaxRage);
 
 	float ActualDelta = Rage - OldRage;
-
-	OnRageChanged.Broadcast(Instigator, this, Rage, ActualDelta);
+	
+	if (!FMath::IsNearlyZero(ActualDelta))
+	{
+		MulticastRageChanged(Instigator, Rage, ActualDelta);
+	}
+	//OnRageChanged.Broadcast(Instigator, this, Rage, ActualDelta);
+	
 	
 	return FMath::IsNearlyZero(ActualDelta);
 }
@@ -158,6 +163,9 @@ void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 	DOREPLIFETIME(USAttributeComponent, Health);
 	DOREPLIFETIME(USAttributeComponent, MaxHealth);
+
+	DOREPLIFETIME(USAttributeComponent, Rage);
+	DOREPLIFETIME(USAttributeComponent, MaxRage);
 	
 	//先运行起来再优化
 	//仅仅为了优化  只发送必要的数据
@@ -168,4 +176,9 @@ void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* Instigator, float NewHealth, float Delta)
 {
 	OnHealthChanged.Broadcast(Instigator, this, NewHealth, Delta);
+}
+
+void USAttributeComponent::MulticastRageChanged_Implementation(AActor* Instigator, float NewRage, float Delta)
+{
+	OnRageChanged.Broadcast(Instigator, this, NewRage, Delta);
 }

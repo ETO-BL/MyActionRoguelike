@@ -21,6 +21,13 @@ public:
 
 protected:
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsAlive)
+	bool bIsAlive;
+
+	//服务器更新的时候客户端调用
+	UFUNCTION()
+	void OnRep_IsAlive();
+
 	float RespawnTime;
 
 	FTimerHandle TimeHandler_RespawnTime;
