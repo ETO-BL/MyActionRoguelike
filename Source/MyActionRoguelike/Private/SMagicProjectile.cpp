@@ -28,8 +28,8 @@ ASMagicProjectile::ASMagicProjectile()
 //命中目标
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactVFX, GetActorLocation(), FRotator::ZeroRotator);
+	//UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactVFX, GetActorLocation(), FRotator::ZeroRotator);
 	UE_LOG(LogTemp, Warning, TEXT("HitActor!!!!!!!"));
 
 	if (OtherActor && OtherActor != GetInstigator())
@@ -46,19 +46,17 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 			return;
 		}
 
-		if (ActionComp)
-		{
-			ActionComp->AddAction(BurnningActionClass, GetInstigator());
-		}
+		
 
 		//造成伤害, Explode()播放效果和声音,然后销毁
 		if (UGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
-			
+
+			if (ActionComp && HasAuthority())
+			{
+				ActionComp->AddAction(BurnningActionClass, GetInstigator());
+			}
 		}
 	}
-
-
-	
 }

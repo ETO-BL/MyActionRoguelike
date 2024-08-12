@@ -44,31 +44,35 @@ bool USAttributeComponent::ApplyHealthChanged(AActor* Instigator, float Delta)
 
 
 	float OldHealth = Health;
-
-	Health = FMath::Clamp(Health + Delta, 0, MaxHealth);
+	float NewHealth = FMath::Clamp(Health + Delta, 0, MaxHealth);
 
 	//可能超出血量上限,所以需要计算实际变化血量
-	float ActualDela = Health - OldHealth;
-	//OnHealthChanged.Broadcast(Instigator, this, Health, ActualDela);
-
-
-	if (ActualDela != 0.f)
-	{
-		MulticastHealthChanged(Instigator, Health, ActualDela);
-	}
+	float ActualDela = NewHealth - OldHealth;
 	
 
-	//死了
-	if (ActualDela < 0 && Health <= 0)
+	//Only Changed on server
+	if (GetOwner()->HasAuthority())
 	{
-		ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>();
-		if (GameMode)
-		{
-			GameMode->KillActor(GetOwner(), Instigator);
-		}
-	}
+		Health = NewHealth;
 
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Health);
+		if (ActualDela != 0.f)
+		{
+			MulticastHealthChanged(Instigator, Health, ActualDela);
+		}
+
+		//死了
+		if (ActualDela < 0 && Health <= 0)
+		{
+			//GameMode runs only on server.
+			ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+			if (GameMode)
+			{
+				GameMode->KillActor(GetOwner(), Instigator);
+			}
+		}
+	}	
+
+	
 	return ActualDela != 0;
 }
 

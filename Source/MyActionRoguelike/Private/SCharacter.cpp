@@ -164,6 +164,8 @@ void ASCharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent* 
 		
 		DisableInput(PC);
 		UE_LOG(LogTemp, Warning, TEXT("NotAlive But Still Moving"));
+
+		SetLifeSpan(5);
 	}
 }
 

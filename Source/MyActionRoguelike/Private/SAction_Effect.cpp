@@ -31,7 +31,7 @@ void USAction_Effect::StartAction_Implementation(AActor* Instigator)
 	}
 }
 
-void USAction_Effect::StopAction_Implementation(AActor* Instigator)
+void USAction_Effect::StopAction_Implementation(AActor* Instigator)//@FIXME: Always Burrning
 {
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_Period) < KINDA_SMALL_NUMBER)
 	{

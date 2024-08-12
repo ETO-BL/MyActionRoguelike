@@ -16,6 +16,8 @@ USActionComponent::USActionComponent()
 
 
 
+
+
 void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,6 +63,13 @@ void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass, AActor* Ins
 		return;
 	}
 	
+	//不在客户端执行
+	if (!GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client attempting to AddAction. [Class: {Class}]"), *GetNameSafe(ActionClass));
+		return;
+	}
+
 	//实例化一个对象
 	USAction* NewAction = NewObject<USAction>(this, ActionClass);
 	if (ensure(NewAction))
@@ -116,7 +125,6 @@ void USActionComponent::ServerStartAction_Implementation(AActor* Instigator, FNa
 	StartActionByName(Instigator, AcitonName);
 }
 
-
 bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 {
 	for (USAction* Action : Actions)
@@ -125,6 +133,12 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		{
 			if (Action->IsRunning())
 			{
+				//Is Cliet?
+				if (!GetOwner()->HasAuthority())
+				{
+					ServerStopAction(Instigator, ActionName);
+				}
+
 				Action->StopAction(Instigator);
 				return true;
 			}			
@@ -132,6 +146,11 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	}
 
 	return false;
+}
+
+void USActionComponent::ServerStopAction_Implementation(AActor* Instigator, FName AcitonName)
+{
+	StopActionByName(Instigator, AcitonName);
 }
 
 //更新复制属性

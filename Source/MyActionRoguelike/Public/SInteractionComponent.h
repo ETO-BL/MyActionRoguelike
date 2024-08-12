@@ -19,6 +19,7 @@ public:
 
 	//Reliable -- TCP/IP -- 重要的信息
 	//Unrealiable -- UDP -- 不太重要的信息
+	//RPC--Server
 	UFUNCTION(Server, Reliable)
 	void ServerInteract(AActor* InFocusActor);
 
