@@ -42,7 +42,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Actions")
 	TArray<TSubclassOf<USAction>> DefaultActions;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<USAction*> Actions;
 
 	virtual void BeginPlay() override;
@@ -51,5 +51,5 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 };

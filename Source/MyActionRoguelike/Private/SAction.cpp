@@ -3,6 +3,7 @@
 
 #include "SAction.h"
 #include "SActionComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 bool USAction::CanStart_Implementation(AActor* Instigator)
@@ -37,7 +38,7 @@ void USAction::StopAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stoped: %s"), *GetNameSafe(this));
 
-	ensureAlways(bIsRunning);
+	//ensureAlways(bIsRunning);
 
 	//去掉Tag--机能
 	USActionComponent* Comp = GetOwningComponent();
@@ -57,14 +58,41 @@ UWorld* USAction::GetWorld() const
 	return nullptr;
 }
 
+bool USAction::IsSupportedForNetworking() const
+{
+	return true;
+}
+
 USActionComponent* USAction::GetOwningComponent() const
 {
 	return Cast<USActionComponent>(GetOuter());
 }
 
+//同步到服务器
+void USAction::OnRep_IsRunning()
+{
+	if (bIsRunning)
+	{
+		StartAction(nullptr);
+	}
+	else
+	{
+		StopAction(nullptr);
+	}
+}
+
 bool USAction::IsRunning()
 {
 	return bIsRunning;
+}
+
+
+//更新复制属性
+void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAction, bIsRunning);
 }
 
 

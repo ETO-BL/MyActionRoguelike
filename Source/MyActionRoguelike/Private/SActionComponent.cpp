@@ -4,6 +4,7 @@
 #include "SActionComponent.h"
 #include "SAction.h"
 #include "Net/UnrealNetwork.h"
+#include "Engine/ActorChannel.h"
 
 
 USActionComponent::USActionComponent()
@@ -19,7 +20,8 @@ void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetOwner())
+	// Server only
+	if (GetOwner()->HasAuthority())
 	{
 		for (TSubclassOf<USAction> ActionClass : DefaultActions)
 		{
@@ -34,8 +36,22 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	//显示当前角色Tag
-	FString DebugMessage = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugMessage);
+	//FString DebugMessage = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
+	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugMessage);
+}
+
+bool USActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	for (USAction* Action : Actions)
+	{
+		if (Action)
+		{
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+		}
+	}
+
+	return WroteSomething;
 }
 
 void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass, AActor* Instigator)
@@ -118,3 +134,10 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	return false;
 }
 
+//更新复制属性
+void USActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USActionComponent, Actions);
+}
