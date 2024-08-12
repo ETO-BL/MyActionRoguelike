@@ -25,6 +25,13 @@ public:
 
 protected:
 
+	//服务器更新bLidOpen到客户端时,客户端自动调用OnRep_LidOpend
+	UPROPERTY(ReplicatedUsing = OnRep_LidOpened, BlueprintReadOnly)
+	bool bLidOpend;
+
+	UFUNCTION()
+	void OnRep_LidOpened();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
 

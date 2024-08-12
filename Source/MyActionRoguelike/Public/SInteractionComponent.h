@@ -17,6 +17,11 @@ class MYACTIONROGUELIKE_API USInteractionComponent : public UActorComponent
 public:
 	void PrimaryInteract();
 
+	//Reliable -- TCP/IP -- 重要的信息
+	//Unrealiable -- UDP -- 不太重要的信息
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InFocusActor);
+
 protected:
 
 	void FindBestInteractable();
