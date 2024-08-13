@@ -46,6 +46,7 @@ void USAction::StopAction_Implementation(AActor* Instigator)
 	Comp->ActiveGameplayTags.RemoveTags(GrantTags);
 
 	RepData.bIsRunning = false;
+	RepData.Instigator = Instigator;
 }
 
 UWorld* USAction::GetWorld() const

@@ -54,7 +54,8 @@ void ADashProjectile::TeleportInstigator()
 			PC = Cast<APlayerController>(TeleportPawn->GetController());
 		}
 
-		if (ensure(PC) && PC->IsLocalController())
+		//if (ensure(PC) && PC->IsLocalController())
+		if (ensure(PC))
 		{
 			PC->ClientPlayCameraShake(AttackShake);
 			UE_LOG(LogTemp, Warning, TEXT("Shake!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));

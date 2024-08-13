@@ -6,6 +6,9 @@
 
 USAction_Effect::USAction_Effect()
 {
+	Duration = 4.f;
+	Period = 2.f;
+
 	bAutoStart = true;
 }
 //Burnning
@@ -13,6 +16,7 @@ void USAction_Effect::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
 
+	//状态持续时间
 	if (Duration > 0.f)
 	{
 		FTimerDelegate Delegate;
@@ -21,6 +25,7 @@ void USAction_Effect::StartAction_Implementation(AActor* Instigator)
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Duration, Delegate, Duration, false);
 	}
 
+	//伤害间隔
 	if (Period > 0.f)
 	{
 		FTimerDelegate Delegate;

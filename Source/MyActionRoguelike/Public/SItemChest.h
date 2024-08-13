@@ -18,6 +18,8 @@ class MYACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterf
 	float TargetPitch;
 
 	void Interact_Implementation(APawn* InstigatorPawn);
+
+	void OnActorLoaded_Implementation();
 	
 public:	
 	// Sets default values for this actor's properties
@@ -26,7 +28,7 @@ public:
 protected:
 
 	//服务器更新bLidOpen到客户端时,客户端自动调用OnRep_LidOpend
-	UPROPERTY(ReplicatedUsing = OnRep_LidOpened, BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing = OnRep_LidOpened, BlueprintReadOnly, SaveGame)
 	bool bLidOpend;
 
 	UFUNCTION()

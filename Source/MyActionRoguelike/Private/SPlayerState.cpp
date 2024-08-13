@@ -3,6 +3,7 @@
 
 #include "SPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "SSaveGame.h"
 
 ASPlayerState::ASPlayerState()
 {
@@ -10,6 +11,22 @@ ASPlayerState::ASPlayerState()
 
 	//  PlayerState默认进行网络复制
 	//	SetIsReplicatedByDefault(true);
+}
+
+void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		SaveObject->Credits = Credits;
+	}
+}
+
+void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* LoadObject)
+{
+	if (LoadObject)
+	{
+		Credits = LoadObject->Credits;
+	}
 }
 
 

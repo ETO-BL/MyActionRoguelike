@@ -23,13 +23,18 @@ ASItemChest::ASItemChest()
 	SetReplicates(true);
 }
 
-
+void ASItemChest::OnActorLoaded_Implementation()
+{
+	OnRep_LidOpened();
+}
 void ASItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
 	bLidOpend = !bLidOpend;
 	//服务器需要手动调用
 	OnRep_LidOpened();
 }
+
+
 
 //客户端自动调用
 void ASItemChest::OnRep_LidOpened()
