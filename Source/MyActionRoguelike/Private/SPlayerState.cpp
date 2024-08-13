@@ -21,15 +21,18 @@ void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveObject)
 	}
 }
 
+//加载时同步
 void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* LoadObject)
 {
 	if (LoadObject)
 	{
-		Credits = LoadObject->Credits;
+		//Credits = LoadObject->Credits;
+		//确保加载数据后同步(Trigger OnCreditsChanged event) 到其他类比如UI --  因为UI构建的比PlayerState要早
+		AddCredits(LoadObject->Credits);
 	}
 }
 
-
+//用于同步服务器
 void ASPlayerState::OnRe_Credits(float OldCredits)
 {
 	OnCreditsChanged.Broadcast(this, Credits, Credits - OldCredits);
@@ -42,7 +45,7 @@ float ASPlayerState::GetCredits()
 
 void ASPlayerState::AddCredits(float Delta)
 {
-	if (!ensure(Delta > 0.f))
+	if (!ensure(Delta >= 0.f))
 	{
 		return ;
 	}

@@ -63,4 +63,7 @@ protected:
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
 
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastPawnSeen();
 };

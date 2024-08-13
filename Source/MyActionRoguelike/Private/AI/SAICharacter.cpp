@@ -110,14 +110,21 @@ void ASAICharacter::OnSeePawn(APawn* Pawn)
 	{
 		SetTargetActor(Pawn);
 
-		SopttedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
-		if (SopttedWidget)
-		{
-			SopttedWidget->AttachedActor = this;
-			SopttedWidget->AddToViewport(1);
-		}
+		//通知其他客户端绘制被发现的UI
+		MulticastPawnSeen();
 	}
 	//DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 0.5f, true);
+}
+
+//通知其他客户端绘制被发现的UI
+void ASAICharacter::MulticastPawnSeen_Implementation()
+{
+	SopttedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+	if (SopttedWidget)
+	{
+		SopttedWidget->AttachedActor = this;
+		SopttedWidget->AddToViewport(10);
+	}
 }
 
 

@@ -28,6 +28,7 @@ void ASPowerUp_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 			if (PlayerState->DelCredits(CreditsDelta) && AttributeComp->ApplyHealthChanged(this, AttributeComp->GetMaxHealth()))
 			{
 				HideAndCoolDown();
+				UE_LOG(LogTemp, Warning, TEXT("Hide"));
 			}
 		}
 		else

@@ -22,7 +22,7 @@ APowerUp_Actor::APowerUp_Actor()
 
 	RespawnTime = 5.0f;
 
-	bIsAlive = true;
+	//bIsAlive = true;
 	SetReplicates(true);
 }
 

@@ -56,15 +56,18 @@ void ASGameModeBase::StartPlay()
 	}
 }
 
+//配置读取的PlayerState
 void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
-
+	//Super::前面比创建UI早'BeginPlayingState'
 	ASPlayerState* PS = NewPlayer->GetPlayerState<ASPlayerState>();
 	if (PS)
 	{
 		PS->LoadPlayerState(CurrentSaveGame);
 	}
+
+
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);//it will call 'BeginPlayingState' in playercontroller
 }
 
 void ASGameModeBase::OnPowerUpSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
