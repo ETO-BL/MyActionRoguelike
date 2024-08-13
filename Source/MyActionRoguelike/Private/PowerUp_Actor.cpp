@@ -22,6 +22,7 @@ APowerUp_Actor::APowerUp_Actor()
 
 	RespawnTime = 5.0f;
 
+	//初始化防止生成后一段时间内(直到timer结束后)同步失败
 	bIsAlive = true;
 	SetReplicates(true);
 }
