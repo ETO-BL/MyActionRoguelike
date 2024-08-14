@@ -48,7 +48,7 @@ void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent
 			SetTargetActor(InstigatorActor);
 		}
 		
-		//检查是否已经拥有血条
+		//如果还没创建血条
 		if (ActiveHealthBar == nullptr)
 		{
 			//创建Minion血条

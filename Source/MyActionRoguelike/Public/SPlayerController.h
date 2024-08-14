@@ -16,6 +16,17 @@ class MYACTIONROGUELIKE_API ASPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	UUserWidget* PauseMenu;
+
+	UFUNCTION(BlueprintCallable)
+	void TooglePauseMenu();
+
+	void SetupInputComponent()override;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;

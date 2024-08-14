@@ -60,6 +60,7 @@ void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass, AActor* Ins
 {
 	if (!ensure(ActionClass))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to AddAction. [Class: {Class}]"), *GetNameSafe(ActionClass));
 		return;
 	}
 	

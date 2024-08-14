@@ -22,7 +22,6 @@ ASMagicProjectile::ASMagicProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
-
 }
 
 //命中目标
@@ -45,15 +44,19 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 		}
 
 		
-
 		//造成伤害, Explode()播放效果和声音,然后销毁
 		if (UGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
+			
 			Explode();
 
-			if (ActionComp && HasAuthority())
+			if (ActionComp && BurnningActionClass)
 			{
 				ActionComp->AddAction(BurnningActionClass, GetInstigator());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AddActionFailed"));
 			}
 		}
 	}

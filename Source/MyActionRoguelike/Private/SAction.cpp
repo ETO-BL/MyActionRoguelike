@@ -33,6 +33,8 @@ void USAction::StartAction_Implementation(AActor* Instigator)
 
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
+
+	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
 
 void USAction::StopAction_Implementation(AActor* Instigator)
@@ -47,6 +49,8 @@ void USAction::StopAction_Implementation(AActor* Instigator)
 
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
+
+	GetOwningComponent()->OnActionStoped.Broadcast(GetOwningComponent(), this);
 }
 
 UWorld* USAction::GetWorld() const

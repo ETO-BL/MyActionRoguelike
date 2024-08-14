@@ -32,7 +32,8 @@ ASProjectileBase::ASProjectileBase()
 	MoveComp->ProjectileGravityScale = 0.0f;
 	MoveComp->InitialSpeed = 8000;
 
-	SetReplicates(true);
+	//SetReplicates(true);  会导致未完成初始化就进行网络复制
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned

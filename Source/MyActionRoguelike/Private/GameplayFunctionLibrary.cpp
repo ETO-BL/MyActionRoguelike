@@ -31,8 +31,8 @@ bool UGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AAct
 			HitComp->AddImpulseAtLocation(Direction * 300000.0f, HitResult.ImpactPoint, HitResult.BoneName);
 			//集中点的法线方向
 			//HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 300000.0f, HitResult.ImpactPoint, HitResult.BoneName);
-			return true;
 		}
+		return true;
 	}
 	return false;
 }

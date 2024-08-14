@@ -31,6 +31,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USActionComponent> ActionComp;
 
+
+
 	UFUNCTION()
 	void OnHealthChange(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
