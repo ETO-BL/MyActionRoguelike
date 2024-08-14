@@ -58,11 +58,11 @@ void USAction_Effect::StopAction_Implementation(AActor* Instigator)
 
 float USAction_Effect::GetTimerRemaining() const
 {
+	//使用GameStateBase获取服务器世界时间
 	AGameStateBase* GS =  GetWorld()->GetGameState<AGameStateBase>();
 	if (GS)
 	{
 		float Endtime = TimeStarted + Duration;
-		//					不同步
 		return Endtime - GS->GetServerWorldTimeSeconds();
 	}
 	return Duration;

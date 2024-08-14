@@ -94,7 +94,10 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
 {
 	AAIController* AIC = GetController<AAIController>();
 	//»ñÈ¡TargetActor
-	AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
+	if (ensureAlways(NewTarget))
+	{
+		AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
+	}	
 }
 
 AActor* ASAICharacter::GetTargetActor() const
