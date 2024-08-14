@@ -86,7 +86,8 @@ void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass, AActor* Ins
 
 void USActionComponent::RemoveAction(USAction* ActionClass)
 {
-	if (!ensure(ActionClass && ActionClass->IsRunning()))
+	//不再执行的时候再移除
+	if (!ensure(ActionClass && !ActionClass->IsRunning()))
 	{
 		return;
 	}

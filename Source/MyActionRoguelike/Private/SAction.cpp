@@ -34,6 +34,15 @@ void USAction::StartAction_Implementation(AActor* Instigator)
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
 
+	//直接GetWorld()->TimeSeconds可能不同步
+	//这都什么语法......
+	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority)
+	{
+		TimeStarted = GetWorld()->TimeSeconds;
+	}
+	
+
+	//通知UI
 	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
 
@@ -50,6 +59,7 @@ void USAction::StopAction_Implementation(AActor* Instigator)
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
 
+	//通知UI
 	GetOwningComponent()->OnActionStoped.Broadcast(GetOwningComponent(), this);
 }
 
@@ -92,14 +102,13 @@ bool USAction::IsRunning()
 	return RepData.bIsRunning;
 }
 
-
 //更新复制属性
 void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(USAction, RepData);
-	
+	DOREPLIFETIME(USAction, TimeStarted);
 }
 
 

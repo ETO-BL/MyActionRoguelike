@@ -32,6 +32,10 @@ protected:
 	FTimerHandle TimerHandle_Duration;
 	FTimerHandle TimerHandle_Period;
 
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	float GetTimerRemaining() const;
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Effect")
 	void ExcutePeriodEffect(AActor* Instigator);
 	

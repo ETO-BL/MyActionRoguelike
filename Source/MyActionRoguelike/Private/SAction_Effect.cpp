@@ -3,6 +3,7 @@
 
 #include "SAction_Effect.h"
 #include "SActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 USAction_Effect::USAction_Effect()
 {
@@ -31,12 +32,12 @@ void USAction_Effect::StartAction_Implementation(AActor* Instigator)
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "ExcutePeriodEffect", Instigator);
 
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Duration, Delegate, Period, true);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle_Period, Delegate, Period, true);
 
 	}
 }
 
-void USAction_Effect::StopAction_Implementation(AActor* Instigator)//@FIXME: Always Burrning
+void USAction_Effect::StopAction_Implementation(AActor* Instigator)
 {
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_Period) < KINDA_SMALL_NUMBER)
 	{
@@ -50,11 +51,21 @@ void USAction_Effect::StopAction_Implementation(AActor* Instigator)//@FIXME: Alw
 
 	//记得去掉Tag
 	USActionComponent* Comp = GetOwningComponent();
-	if (Comp)
-	{
-		Comp->RemoveAction(this);
-	}
+	Comp->RemoveAction(this);
+	
 
+}
+
+float USAction_Effect::GetTimerRemaining() const
+{
+	AGameStateBase* GS =  GetWorld()->GetGameState<AGameStateBase>();
+	if (GS)
+	{
+		float Endtime = TimeStarted + Duration;
+		//					不同步
+		return Endtime - GS->GetServerWorldTimeSeconds();
+	}
+	return Duration;
 }
 
 void USAction_Effect::ExcutePeriodEffect_Implementation(AActor* Instigator)
