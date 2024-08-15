@@ -38,12 +38,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
-	virtual void Interact_Implementation(APawn* InstigatorPawn);
+	void Interact_Implementation(APawn* InstigatorPawn) override;
+
+	FText GetInteractText_Implementation(APawn* IntigatorPawn) override;
 
 	void ShowPowerUp();
 
 	void SetPowerUpState(bool bNewState);
 
 	void HideAndCoolDown();
+
+
 
 };

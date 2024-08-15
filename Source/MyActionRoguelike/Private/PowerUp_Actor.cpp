@@ -42,6 +42,11 @@ void APowerUp_Actor::Interact_Implementation(APawn* InstigatorPawn)
 {
 }
 
+FText APowerUp_Actor::GetInteractText_Implementation(APawn* IntigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void APowerUp_Actor::SetPowerUpState(bool bNewState)
 {
 	bIsAlive = bNewState;

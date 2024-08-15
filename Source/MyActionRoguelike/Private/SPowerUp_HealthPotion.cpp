@@ -6,6 +6,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "SPlayerState.h"
 
+#define LOCTEXT_NAMESPACE "InteractableActors"
+
 ASPowerUp_HealthPotion::ASPowerUp_HealthPotion()
 {
 	CreditsDelta = 20.f;
@@ -37,3 +39,17 @@ void ASPowerUp_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 		}
 	}
 }
+
+FText ASPowerUp_HealthPotion::GetInteractText_Implementation(APawn* IntigatorPawn)
+{
+	USAttributeComponent* AttributeComp = USAttributeComponent::GetAttribute(IntigatorPawn);
+	if (AttributeComp && AttributeComp->IsFullHealth())
+	{
+
+		return LOCTEXT("HealthPorion_FullHealthWarning", "Already at full Health");
+	}
+	return FText::Format(LOCTEXT("HealthPotion_Message", "Cost {0} Credits. Restors Health to Maximum."), CreditsDelta);
+}
+
+
+#undef LOCTEXT_NAMESPACE
