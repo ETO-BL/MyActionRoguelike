@@ -5,12 +5,47 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
+#include "Engine/DataTable.h"
 #include "SGameModeBase.generated.h"
 
 class UEnvQuery;
 class UEnvQueryInstanceBlueprintWrapper;
 class UCurveFloat;
 class USSaveGame;
+class UDataTable;
+class USMonsterDataAsset;
+
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	FMonsterInfoRow()
+	{
+		Weight = 1.f;
+		SpawnCost = 5.f;
+		KillReward = 20.f;
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FPrimaryAssetId MonsterId;//软引用 使用AssetManager加载
+
+//	使用DataAsset
+//	USMonsterDataAsset* MonsterData;
+//	TSubclassOf<AActor> MinionClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Weight;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpawnCost;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float KillReward;
+
+};
 /**
  * 
  */
@@ -29,7 +64,10 @@ protected:
 	FTimerHandle TimerHandle_SpawnBot;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TSubclassOf<AActor> MinionClass;
+	UDataTable* MonsterTable;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "AI")
+	//TSubclassOf<AActor> MinionClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float SpawnInterval;
@@ -65,6 +103,8 @@ protected:
 
 	UFUNCTION()
 	void OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	void OnMonterLoaded(FPrimaryAssetId MonsterId, FVector SpawnLocation);
 
 public:
 

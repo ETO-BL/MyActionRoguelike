@@ -7,12 +7,14 @@
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameStateBase.h"
 #include "SCharacter.h"
-
 #include "SPlayerState.h"
 #include "SSaveGame.h"
 #include "SGameplayInterface.h"
+#include "SMonsterDataAsset.h"
+#include "SActionComponent.h"
 #include <Kismet/GameplayStatics.h>
 #include <SAttributeComponent.h>
+#include "Engine/AssetManager.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 
@@ -182,10 +184,58 @@ void ASGameModeBase::OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Quer
 
 	if (Locations.Num() > 0)
 	{
-		
-		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+		if (MonsterTable)
+		{
+			//读取数据表, 通过datatable可以配置生成怪物的信息-- Minionclass, Actions, UI......
+			TArray<FMonsterInfoRow*> Rows;
+			MonsterTable->GetAllRows("", Rows);
 
-		DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Red, false, 60.0f);
+			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
+			FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
+
+			//数据表内使用AssetManager管理Asset--软引用, 不立即加载
+			UAssetManager* Manager = UAssetManager::GetIfValid();
+			if (Manager)
+			{
+				TArray<FName> Bundle;
+				
+				//FStreamableDelegate不能用于蓝图,但可以传递动态数量的参数
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonterLoaded, SelectedRow->MonsterId, Locations[0]);
+				//需要时手动加载到内存
+				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundle, Delegate);
+			}
+
+
+		}
+	}
+}
+
+//加载后--创建Monster实例
+void ASGameModeBase::OnMonterLoaded(FPrimaryAssetId MonsterId, FVector SpawnLocation)
+{
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+	if (Manager)
+	{
+		//创建Asset实例
+		USMonsterDataAsset* MonsterData = Cast<USMonsterDataAsset>(Manager->GetPrimaryAssetObject(MonsterId));
+		if (MonsterData)
+		{
+			//生成
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MinionClass, SpawnLocation, FRotator::ZeroRotator);
+
+			//读取Asset配置, 根据Asset添加对应的能力,而不必直接再Minionclass内配置
+			if (NewBot)
+			{
+				USActionComponent* Actioncomp = Cast<USActionComponent>(NewBot->GetComponentByClass(USActionComponent::StaticClass()));
+				if (Actioncomp)
+				{
+					for (TSubclassOf<USAction> Action : MonsterData->Actions)
+					{
+						Actioncomp->AddAction(Action, NewBot);
+					}
+				}
+			}
+		}
 	}
 }
 
