@@ -29,7 +29,7 @@ ASGameModeBase::ASGameModeBase()
 	MaxPowerUpCount = 5;
 	PowerUpInterval = 80.f;
 
-	SlotName = "SaveGame01";
+	SlotName = "SaveGame02";
 
 	PlayerStateClass = ASPlayerState::StaticClass();
 }
@@ -38,6 +38,12 @@ ASGameModeBase::ASGameModeBase()
 void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
+
+	FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
+	if (SelectedSaveSlot.Len() > 0)
+	{
+		SlotName = SelectedSaveSlot;
+	}
 
 	LoadSaveGame();
 }
@@ -204,8 +210,6 @@ void ASGameModeBase::OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Quer
 				//需要时手动加载到内存
 				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundle, Delegate);
 			}
-
-
 		}
 	}
 }

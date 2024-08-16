@@ -39,6 +39,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
 
+	FTimerHandle FadeOutTimerHandle;
+
+	float FadeOutStartTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	float FadeOutDuration;
+
+	UFUNCTION()
+	void FadeOutUpdate();
+
+	void UpdateMaterialFadeOut(float Alpha);
+
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> HealthBarWidgetClass;
 

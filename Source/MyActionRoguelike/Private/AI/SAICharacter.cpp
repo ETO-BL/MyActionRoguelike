@@ -21,12 +21,14 @@ ASAICharacter::ASAICharacter()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	//Hit Mesh Only
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
 	
 	TimeToHitParamName = "TimeToHit";
 	TargetActorKey = "TargetActor";
-
+	
+	FadeOutDuration = 5.f;
 	PawnSensingComp->SightRadius = 1500.f;
 }
  
@@ -80,12 +82,42 @@ void ASAICharacter::OnHealthChange(AActor* InstigatorActor, USAttributeComponent
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 
-			//来点夸张的效果
+			//死亡效果
+			GetWorld()->GetTimerManager().SetTimer(FadeOutTimerHandle, this, &ASAICharacter::FadeOutUpdate, 0.1f, true);
+			FadeOutStartTime = GetWorld()->TimeSeconds;
+
+			//来点夸张的效果-用于施加死亡后实体受力
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			GetCharacterMovement()->DisableMovement();
 
 			//Setlifespan
-			SetLifeSpan(10.f);
+			SetLifeSpan(5.f);
+		}
+	}
+}
+
+void ASAICharacter::FadeOutUpdate()
+{
+	float ElapsedTime = GetWorld()->GetTimeSeconds() - FadeOutStartTime;
+	float Alpha = FMath::Clamp(ElapsedTime / FadeOutDuration, 0.0f, 1.0f);
+
+	// Update FadeOut parameter
+	UpdateMaterialFadeOut(Alpha);
+
+	if (Alpha >= 1.0f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(FadeOutTimerHandle);
+	}
+}
+
+void ASAICharacter::UpdateMaterialFadeOut(float Alpha)
+{
+	if (GetMesh())
+	{
+		UMaterialInstanceDynamic* DynMaterial = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+		if (DynMaterial)
+		{
+			DynMaterial->SetScalarParameterValue("FadeOut", Alpha);
 		}
 	}
 }
