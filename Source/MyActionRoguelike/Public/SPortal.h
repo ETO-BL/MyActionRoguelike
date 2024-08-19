@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/ArrowComponent.h"
 #include "SPortal.generated.h"
 
 class UBoxComponent;
@@ -27,20 +28,38 @@ protected:
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> PortalPlane;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UBoxComponent> BoxComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<USceneCaptureComponent2D> SceneCaptureComp;
+	TObjectPtr<USceneCaptureComponent2D> PortalSceneCapture;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UMaterial* PortalMaterial;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UArrowComponent* ForwardDirection;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UTextureRenderTarget2D> RenderTarget;
+
+	UPROPERTY(EditDefaultsOnly)
+	float PortalQuality;
 
 	virtual void PostInitializeComponents()override;
 
-	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void BoxEnableCollision(ASPortal* TargetPortal);
-
-	void UpdateCaptureComponent();
-
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateSceneCapture();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckResolution();
+
+	void SetClipPlanes();
 };
