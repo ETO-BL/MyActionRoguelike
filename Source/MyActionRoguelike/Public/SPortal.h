@@ -8,6 +8,7 @@
 #include "SPortal.generated.h"
 
 class UBoxComponent;
+class UCameraComponent;
 class UStaticMeshComponent;
 class USceneCaptureComponent2D;
 
@@ -31,7 +32,10 @@ protected:
 	TObjectPtr<UStaticMeshComponent> PortalPlane;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<UBoxComponent> BoxComp;
+	TObjectPtr<UBoxComponent> TeleportDetection;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<UBoxComponent> PlayerNearByBounds;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<USceneCaptureComponent2D> PortalSceneCapture;
@@ -42,6 +46,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UArrowComponent* ForwardDirection;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UCameraComponent* PlayerCamera;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UTextureRenderTarget2D> RenderTarget;
@@ -49,17 +55,31 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float PortalQuality;
 
+	FVector LastLocation;
+
+	bool bLastInFront;
+
+protected:
+
 	virtual void PostInitializeComponents()override;
 
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable)
 	void UpdateSceneCapture();
 
-	UFUNCTION(BlueprintCallable)
 	void CheckResolution();
 
 	void SetClipPlanes();
+
+	void ShouleTeleport();
+
+	bool IsCrossingPortal(FVector ActorLocation, FVector PortalLocation, FVector PortalNormal);
+
+	void TeleportPlayer();
+
+	FVector UpdateLocation(FVector OldLocation);
+
+	FRotator UpdateRotation(FRotator OldRotation);
 };

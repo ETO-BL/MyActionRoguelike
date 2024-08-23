@@ -7,6 +7,10 @@
 #include "Components/SceneCaptureComponent2D.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Camera/CameraComponent.h"
+#include "UObject/UObjectGlobals.h"
+#include "Math/Plane.h"
+#include "Math/Vector.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ASPortal::ASPortal()
@@ -15,9 +19,11 @@ ASPortal::ASPortal()
 	RootComponent = MeshComp;
 	PortalPlane = CreateDefaultSubobject<UStaticMeshComponent>("ProtalMeshComp");
 	PortalPlane->SetupAttachment(RootComponent);
+	TeleportDetection = CreateDefaultSubobject<UBoxComponent>("BoxComp");
+	TeleportDetection->SetupAttachment(RootComponent);
 
-	BoxComp = CreateDefaultSubobject<UBoxComponent>("BoxComp");
-	BoxComp->SetupAttachment(RootComponent);
+	PlayerNearByBounds = CreateDefaultSubobject<UBoxComponent>("NearByBoxComp");
+	PlayerNearByBounds->SetupAttachment(RootComponent);
 
 	PortalSceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>("SceneCaptureComp");
 	PortalSceneCapture->SetupAttachment(RootComponent);
@@ -25,6 +31,10 @@ ASPortal::ASPortal()
 	ForwardDirection = CreateDefaultSubobject<UArrowComponent>("ArrowComponent");
 	ForwardDirection->SetupAttachment(RootComponent);
 	ForwardDirection->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+
+	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
+	PlayerCamera->SetupAttachment(RootComponent);
+
 
 	LinkedPortal = nullptr;
 	PortalQuality = 1.f;
@@ -39,6 +49,8 @@ void ASPortal::PostInitializeComponents()
 void ASPortal::BeginPlay()
 {
 	Super::BeginPlay();
+	
+
 	SetTickGroup(TG_PostUpdateWork);
 
 	// 创建材质和设置材质
@@ -84,6 +96,7 @@ void ASPortal::Tick(float DeltaTime)
 
 	UpdateSceneCapture();
 	CheckResolution();
+	ShouleTeleport();
 }
 
 void ASPortal::UpdateSceneCapture()
@@ -94,14 +107,6 @@ void ASPortal::UpdateSceneCapture()
 		return;
 	}
 
-	FTransform PortalTransform = GetActorTransform();
-
-	//反转传送门位置
-	FVector Scale = PortalTransform.GetScale3D();
-	Scale.X *= -1;
-	Scale.Y *= -1;
-	PortalTransform.SetScale3D(Scale);
-
 	//获取玩家相机位置和旋转
 	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	CameraManager->GetTransformComponent()->GetComponentTransform().GetLocation();
@@ -109,37 +114,11 @@ void ASPortal::UpdateSceneCapture()
 	{
 		//相对位置和相对旋转
 		FVector CameraLocation = CameraManager->GetTransformComponent()->GetComponentTransform().GetLocation();
-		FVector RelativeLocation = PortalTransform.InverseTransformPosition(CameraLocation);
-
-		FRotator CameraRotation = CameraManager->GetTransformComponent()->GetComponentTransform().GetRotation().Rotator();	
-		FRotator RelativeRotation = PortalTransform.InverseTransformRotation(CameraRotation.Quaternion()).Rotator();
-		
-		// 将 FRotator 转换为 FMatrix
-		FMatrix RotationMatrix = FRotationMatrix(RelativeRotation);
-
-		// 获取旋转后的三个轴向量
-		FVector XAxis = RotationMatrix.GetUnitAxis(EAxis::X);
-		FVector YAxis = RotationMatrix.GetUnitAxis(EAxis::Y);
-		FVector ZAxis = RotationMatrix.GetUnitAxis(EAxis::Z);
-		
-		FVector MirrorNormalX(1, 0, 0);
-		FVector MirrorNormalY(0, 1, 0);
-
-		// 分别镜像三个轴
-		FVector MirroredXAxis = UKismetMathLibrary::MirrorVectorByNormal(XAxis, MirrorNormalX);
-		MirroredXAxis = UKismetMathLibrary::MirrorVectorByNormal(MirroredXAxis, MirrorNormalY);
-
-		FVector MirroredYAxis = UKismetMathLibrary::MirrorVectorByNormal(YAxis, MirrorNormalX);
-		MirroredYAxis = UKismetMathLibrary::MirrorVectorByNormal(MirroredYAxis, MirrorNormalY);
-
-		// 重新组合为旋转矩阵
-		FMatrix MirroredMatrix = FMatrix(MirroredXAxis, MirroredYAxis, ZAxis, FVector::ZeroVector);
-		FRotator MirroredRotation = MirroredMatrix.Rotator();
-
-		//转换为世界位置和世界旋转
-		FVector SceneCpatureNewLocation = LinkedPortal->GetActorTransform().TransformPosition(RelativeLocation);
-		FRotator SceneCaptureNewRotation = LinkedPortal->GetActorTransform().TransformRotation(MirroredRotation.Quaternion()).Rotator();
-		LinkedPortal->PortalSceneCapture->SetWorldLocationAndRotation(SceneCpatureNewLocation, SceneCaptureNewRotation);
+		FRotator CameraRotation = CameraManager->GetTransformComponent()->GetComponentTransform().GetRotation().Rotator();
+	
+		FVector NewLocation = UpdateLocation(CameraLocation);
+		FRotator NewRotation = UpdateRotation(CameraRotation);
+		LinkedPortal->PortalSceneCapture->SetWorldLocationAndRotation(NewLocation, NewRotation);
 	}
 }
 
@@ -179,9 +158,151 @@ void ASPortal::SetClipPlanes()
 	PortalSceneCapture->ClipPlaneNormal = ForwardVector;
 }
 
+void ASPortal::ShouleTeleport()
+{
+	TArray<AActor*> OverlappingActors;
+	PlayerNearByBounds->GetOverlappingActors(OverlappingActors);
 
+	for (AActor* OverlappingActor : OverlappingActors)
+	{
+		if (!IsValid(OverlappingActor))
+		{
+			return;
+		}
 
+		TArray<AActor*> TeleportActors;
+		TeleportDetection->GetOverlappingActors(TeleportActors);
 
+		for (AActor* TeleportActor : TeleportActors)
+		{
+			if (!IsValid(TeleportActor))
+			{
+				return;
+			}
+		}
+	}
+	
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		APawn* PlayerPawn = PC->GetPawn();
+		if (PlayerPawn)
+		{
+			FVector PlayerLocation = PlayerPawn->GetActorLocation();
+			FVector PortalLocation = GetActorLocation();
+			FVector PortalNormal = ForwardDirection->GetForwardVector();
+			if (IsCrossingPortal(PlayerLocation, PortalLocation, PortalNormal))
+			{
+				TeleportPlayer();
+				UE_LOG(LogTemp, Warning, TEXT("IS CROSSING"));
+			}
+		}				
+	}
+}
 
+bool ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, FVector PortalNormal)
+{
+	bool bIsInFront = false;
+	bool bIsCrossing = false;
 
+	//是否通过了portal
+	float DotProductResult = FVector::DotProduct(PlayerLocation - PortalLocation, PortalNormal);
+	if (DotProductResult >= 0)
+	{
+		bIsInFront = true;
+	}
+
+	FPlane PortalDetectionPlane(PortalLocation, PortalNormal);
+	
+	const FVector IntersectionPoint = FMath::LinePlaneIntersection(LastLocation, PlayerLocation, PortalDetectionPlane);
+
+	const bool bIsIntersecting = (FVector::DotProduct(IntersectionPoint - LastLocation, IntersectionPoint - PlayerLocation) <= 0);
+
+	if (bIsIntersecting && !bIsInFront && bLastInFront)
+	{
+		bIsCrossing = true;
+	}
+
+	bLastInFront = bIsInFront;
+	LastLocation = PlayerLocation;
+
+	return bIsCrossing;
+}
+
+void ASPortal::TeleportPlayer()
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		APawn* PlayerPawn = PC->GetPawn();
+		if (PlayerPawn)
+		{
+			//角色相对位置和相对旋转
+			FVector PlayerLocation = PlayerPawn->GetActorLocation();
+			FRotator PlayerRotation = PlayerPawn->GetActorRotation();
+
+			FVector NewLocation = UpdateLocation(PlayerLocation);
+			FRotator NewRotation = UpdateRotation(PlayerRotation);
+
+			PlayerPawn->SetActorLocationAndRotation(NewLocation, NewRotation);
+
+			FRotator PCRotation = PC->GetControlRotation();
+			FRotator PCNewRotation = UpdateRotation(PCRotation);
+			PC->SetControlRotation(PCNewRotation);
+		}
+	}
+}
+
+FVector ASPortal::UpdateLocation(FVector OldLocation)
+{
+	FTransform PortalTransform = GetActorTransform();
+
+	//反转传送门位置
+	FVector Scale = PortalTransform.GetScale3D();
+	Scale.X *= -1;
+	Scale.Y *= -1;
+	PortalTransform.SetScale3D(Scale);
+
+	//相对位置
+	FVector RelativeLocation = PortalTransform.InverseTransformPosition(OldLocation);
+	//对应的世界位置
+	FVector NewLocation = LinkedPortal->GetActorTransform().TransformPosition(RelativeLocation);
+	return NewLocation;
+}
+
+FRotator ASPortal::UpdateRotation(FRotator OldRotation)
+{
+	FTransform PortalTransform = GetActorTransform();
+
+	//反转传送门位置
+	FVector Scale = PortalTransform.GetScale3D();
+	Scale.X *= -1;
+	Scale.Y *= -1;
+	PortalTransform.SetScale3D(Scale);
+
+	FRotator RelativeRotation = PortalTransform.InverseTransformRotation(OldRotation.Quaternion()).Rotator();
+	// 将 FRotator 转换为 FMatrix
+	FMatrix RotationMatrix = FRotationMatrix(RelativeRotation);
+	// 获取旋转后的三个轴向量
+	FVector XAxis = RotationMatrix.GetUnitAxis(EAxis::X);
+	FVector YAxis = RotationMatrix.GetUnitAxis(EAxis::Y);
+	FVector ZAxis = RotationMatrix.GetUnitAxis(EAxis::Z);
+	//单位向量
+	FVector MirrorNormalX(1, 0, 0);
+	FVector MirrorNormalY(0, 1, 0);
+	// 分别镜像两个轴
+	FVector MirroredXAxis = UKismetMathLibrary::MirrorVectorByNormal(XAxis, MirrorNormalX);
+	MirroredXAxis = UKismetMathLibrary::MirrorVectorByNormal(MirroredXAxis, MirrorNormalY);
+
+	FVector MirroredYAxis = UKismetMathLibrary::MirrorVectorByNormal(YAxis, MirrorNormalX);
+	MirroredYAxis = UKismetMathLibrary::MirrorVectorByNormal(MirroredYAxis, MirrorNormalY);
+	// 重新组合为旋转矩阵
+	FMatrix MirroredMatrix = FMatrix(MirroredXAxis, MirroredYAxis, ZAxis, FVector::ZeroVector);
+	FRotator MirroredRotation = MirroredMatrix.Rotator();
+
+	//对应世界旋转
+	FRotator NewRotation = LinkedPortal->GetActorTransform().TransformRotation(MirroredRotation.Quaternion()).Rotator();
+
+	return NewRotation;
+}
 
