@@ -29,7 +29,7 @@ protected:
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<UStaticMeshComponent> PortalPlane;
+	TObjectPtr<UStaticMeshComponent> PortalScenePlane;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UBoxComponent> TeleportDetection;
@@ -59,6 +59,10 @@ protected:
 
 	bool bLastInFront;
 
+	bool bIsSynchronized;
+
+	APlayerController* PC;
+
 protected:
 
 	virtual void PostInitializeComponents()override;
@@ -73,13 +77,17 @@ protected:
 
 	void SetClipPlanes();
 
-	void ShouleTeleport();
+	void ShouldTeleport();
 
 	bool IsCrossingPortal(FVector ActorLocation, FVector PortalLocation, FVector PortalNormal);
 
 	void TeleportPlayer();
 
-	FVector UpdateLocation(FVector OldLocation);
+	FVector UpdateLocation(FVector OldLocation, ASPortal* OtherPortal);
 
-	FRotator UpdateRotation(FRotator OldRotation);
+	FRotator UpdateRotation(FRotator OldRotation, ASPortal* OtherPortal);
+
+	FVector UpdateVelocity(FVector OldVelocity, ASPortal* OtherPortal);
+
+	void UpdateLinkedCamera();
 };
