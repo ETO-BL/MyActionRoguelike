@@ -12,8 +12,10 @@
 #include "Math/Plane.h"
 #include "Math/Vector.h"
 #include "SCharacter.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Camera/CameraComponent.h"
 
 ASPortal::ASPortal()
 {
@@ -21,19 +23,17 @@ ASPortal::ASPortal()
 	RootComponent = MeshComp;
 	PortalScenePlane = CreateDefaultSubobject<UStaticMeshComponent>("ProtalMeshComp");
 	PortalScenePlane->SetupAttachment(RootComponent);
+	PortalTestPlane = CreateDefaultSubobject<UStaticMeshComponent>("TextPlaneComp");
+	PortalTestPlane->SetupAttachment(RootComponent);
 	TeleportDetection = CreateDefaultSubobject<UBoxComponent>("BoxComp");
 	TeleportDetection->SetupAttachment(RootComponent);
-
 	PlayerNearByBounds = CreateDefaultSubobject<UBoxComponent>("NearByBoxComp");
 	PlayerNearByBounds->SetupAttachment(RootComponent);
-
 	PortalSceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>("SceneCaptureComp");
 	PortalSceneCapture->SetupAttachment(RootComponent);
-		
 	ForwardDirection = CreateDefaultSubobject<UArrowComponent>("ArrowComponent");
 	ForwardDirection->SetupAttachment(RootComponent);
 	ForwardDirection->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
-
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(RootComponent);
 	PlayerCamera->SetActive(true);
@@ -41,12 +41,6 @@ ASPortal::ASPortal()
 	LinkedPortal = nullptr;
 	PortalQuality = 1.f;
 	PrimaryActorTick.bCanEverTick = true;
-	bIsSynchronized = true;
-}
-
-void ASPortal::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 }
 
 void ASPortal::BeginPlay()
@@ -54,44 +48,20 @@ void ASPortal::BeginPlay()
 	Super::BeginPlay();
 
 	SetTickGroup(TG_PostUpdateWork);
-	// 创建材质和设置材质
-	if (PortalMaterial)
-	{
-		//创建动态材质实例
-		UMaterialInstanceDynamic* PortalMAT = UMaterialInstanceDynamic::Create(PortalMaterial, this);
-		PortalScenePlane->SetMaterial(0, PortalMAT);
 
-		//获取视口大小,创建渲染目标
-		FVector2D ViewportSize;
-		UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport();
-		if (ViewportClient)
-		{
-			ViewportClient->GetViewportSize(ViewportSize);
-		}
-		
-		int32 Width = FMath::TruncToInt(ViewportSize.X * PortalQuality);
-		int32 Height = FMath::TruncToInt(ViewportSize.Y * PortalQuality);
-		
-		RenderTarget = NewObject<UTextureRenderTarget2D>();
-		if (RenderTarget)
-		{
-			RenderTarget->InitCustomFormat(Width, Height, PF_FloatRGBA, false);
-		}
+	FTimerHandle Thimerhandle_PortalSceneSet;
 
-		//更新动态材质
-		PortalMAT->SetTextureParameterValue(FName("Texture"), RenderTarget);
-
-		if (LinkedPortal)
-		{
-			LinkedPortal->PortalSceneCapture->TextureTarget = RenderTarget;
-		}
-	}
+	GetWorldTimerManager().SetTimer(Thimerhandle_PortalSceneSet, this, &ASPortal::SetSceneMat, 0.3f, false);
+	
 
 	// 设置裁剪面
 	SetClipPlanes();
 
 	//获取玩家控制器
 	PC = GetWorld()->GetFirstPlayerController();
+	if (PC == nullptr) return;
+	PCM = Cast<ACharacter>(PC->GetCharacter()); 
+	if (PCM == nullptr) return;
 }
 
 void ASPortal::Tick(float DeltaTime)
@@ -100,8 +70,10 @@ void ASPortal::Tick(float DeltaTime)
 
 	UpdateSceneCapture();
 	CheckResolution();
-	ShouldTeleport(); 
-	UpdateLinkedCamera();
+
+	//UpdateLinkedCamera();
+	//ShouldTeleport(); 
+	
 }
 
 void ASPortal::UpdateSceneCapture()
@@ -111,7 +83,6 @@ void ASPortal::UpdateSceneCapture()
 		UE_LOG(LogTemp, Warning, TEXT("No Linked Portal!"));
 		return;
 	}
-
 	//获取玩家相机位置和旋转
 	APlayerCameraManager* CameraManager = PC->PlayerCameraManager;
 	if (CameraManager)
@@ -128,6 +99,11 @@ void ASPortal::UpdateSceneCapture()
 
 void ASPortal::CheckResolution()
 {
+	if (RenderTarget == nullptr)
+	{
+		return;
+	}
+
 	//缩放到相同大小
 	FVector2D ViewportSize;
 	UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport();
@@ -164,6 +140,8 @@ void ASPortal::SetClipPlanes()
 
 void ASPortal::ShouldTeleport()
 {
+	bool bISValid = false;
+
 	TArray<AActor*> OverlappingActors;
 	PlayerNearByBounds->GetOverlappingActors(OverlappingActors);
 	for (AActor* OverlappingActor : OverlappingActors)
@@ -173,91 +151,131 @@ void ASPortal::ShouldTeleport()
 			return;
 		}
 	}
-
 	TArray<AActor*> TeleportActors;
 	TeleportDetection->GetOverlappingActors(TeleportActors);
-	for (AActor* TeleportActor : TeleportActors)
+	for (AActor* OverlappingActor : OverlappingActors)
 	{
-		if (!IsValid(TeleportActor))
+		if (!IsValid(OverlappingActor))
 		{
-			return;
+			bISValid = false;
+			break;
+		}
+	}
+
+
+	if (bISValid)
+	{
+		
+		//用于判断是否穿过传送门
+		FVector PlayerLocation = PCM->GetActorLocation();
+		FVector PortalLocation = GetActorLocation();
+		FVector PortalNormal = ForwardDirection->GetForwardVector();
+
+		bIsCorssing = IsCrossingPortal(PlayerLocation, PortalLocation, PortalNormal);
+		//FVector CameraLocation = PCM->GetPawnViewLocation();
+		//bIsCameraCorssing = IsCrossingPortal(CameraLocation, PortalLocation, PortalNormal);
+		//UE_LOG(LogTemp, Warning, TEXT("IsCrossing: %s"), bIsCorssing ? TEXT("true") : TEXT("false"));
+		//UE_LOG(LogTemp, Warning, TEXT("bIsCameraCorssing: %s"), bIsCameraCorssing ? TEXT("true") : TEXT("false"));
+		//角色穿过portal
+		if (bIsCorssing)
+		{
+			TeleportPlayer();
+			//传送相机设置
+			if (bIsSynchronized)
+			{
+				bIsSynchronized = false;
+				LinkedPortal->bIsSynchronized = bIsSynchronized;
+				PC->SetViewTargetWithBlend(this, VTBlend_Linear);
+			}
+			else
+			{
+				bIsSynchronized = true;
+				LinkedPortal->bIsSynchronized = bIsSynchronized;
+				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
+			}
+		}
+		else
+		{
+#pragma region Preset
+			FString Message = FString::Printf(TEXT("bIsSynchronized: %s"), bIsSynchronized ? TEXT("true") : TEXT("false"));
+			GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Red, Message);
+
+			FHitResult HitPortal;
+			FVector Start = PC->PlayerCameraManager->GetCameraLocation();
+			FVector End;
+			FCollisionQueryParams QueryParams;
+			QueryParams.AddIgnoredActor(this);
+			FCollisionResponseParams Params;
+#pragma endregion
+			if (bIsSynchronized)
+			{
+				End = PCM->GetActorLocation();
+				GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+				if (HitPortal.Component == PortalTestPlane)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("HITCOMPONENT"));
+					bIsSynchronized = false;
+					LinkedPortal->bIsSynchronized = false;
+					//略有不同,没进传送门但是相机进了应该是传入linkedportal
+					PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
+				}
+			}
+			else
+			{
+				End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
+				GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+				if (HitPortal.Component != LinkedPortal->PortalTestPlane)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Not HITCOMPONENT!"));
+					bIsSynchronized = true;
+					LinkedPortal->bIsSynchronized = true;
+					//回来了
+					PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
+				}
+			}
+		}
+	}
+	else
+	{
+#pragma region Preset
+		FString Message = FString::Printf(TEXT("bIsSynchronized: %s"), bIsSynchronized ? TEXT("true") : TEXT("false"));
+		GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Red, Message);
+
+		FHitResult HitPortal;
+		FVector Start = PC->PlayerCameraManager->GetCameraLocation();
+		FVector End;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		FCollisionResponseParams Params;
+#pragma endregion
+		if (bIsSynchronized)
+		{
+			End = PCM->GetActorLocation();
+			GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+			if (HitPortal.Component == PortalTestPlane)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("HITCOMPONENT"));
+				bIsSynchronized = false;
+				LinkedPortal->bIsSynchronized = false;
+				//略有不同,没进传送门但是相机进了应该是传入linkedportal
+				PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
+			}
+		}
+		else
+		{
+			End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
+			GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+			if (HitPortal.Component != LinkedPortal->PortalTestPlane)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Not HITCOMPONENT!"));
+				bIsSynchronized = true;
+				LinkedPortal->bIsSynchronized = true;
+				//回来了
+				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
+			}
 		}
 	}
 	
-	APawn* PlayerPawn = PC->GetPawn();
-
-	//用于判断是否穿过传送门
-	FVector PlayerLocation = PlayerPawn->GetActorLocation();
-	FVector PortalLocation = GetActorLocation();
-	FVector PortalNormal = ForwardDirection->GetForwardVector();
-	//角色穿过portal
-	if (IsCrossingPortal(PlayerLocation, PortalLocation, PortalNormal))
-	{
-
-		TeleportPlayer();
-
-		//传送相机设置
-		if (bIsSynchronized) //从同一侧--->角色和相机在portal两侧--切换为传送门的相机
-		{
-			bIsSynchronized = false;
-			LinkedPortal->bIsSynchronized = false;
-			PC->SetViewTargetWithBlend(this, VTBlend_Linear);
-			UE_LOG(LogTemp, Warning, TEXT("Camera Set"));
-		}
-		else //两侧到一侧--切换回角色相机
-		{
-			bIsSynchronized = true;
-			LinkedPortal->bIsSynchronized = true;
-			PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
-			UE_LOG(LogTemp, Warning, TEXT("Camera Set back"));
-		}
-	}
-	//else  //没进portal但是相机进去了
-	//{
-	//	//传送相机设置
-	//	if (bIsSynchronized) //从同一侧到角色和相机在portal两侧--切换为传送门的相机
-	//	{
-	//		FHitResult HitPortal;
-	//		FVector Start = PC->PlayerCameraManager->GetCameraLocation();
-	//		FVector End = PC->GetCharacter()->GetActorLocation();
-	//		FCollisionQueryParams QueryParams;
-	//		QueryParams.AddIgnoredActors(OverlappingActors);
-	//		FCollisionResponseParams Params;
-	//		
-	//		if (GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_WorldStatic, QueryParams, Params))
-	//		{
-	//			//相机传过去了
-	//			if (HitPortal.Component == PortalScenePlane)
-	//			{
-	//				bIsSynchronized = false;
-	//				LinkedPortal->bIsSynchronized = false;
-	//				//略有不同,没进传送门但是相机进了应该是传入linkedportal
-	//				PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
-	//			}
-	//		}
-	//	}
-	//	else //两侧到一侧--切换回角色相机
-	//	{
-	//		FHitResult HitPortal;
-	//		FVector Start = PC->PlayerCameraManager->GetCameraLocation();
-	//		FVector End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
-	//		
-	//		FCollisionQueryParams QueryParams;
-	//		QueryParams.AddIgnoredActors(OverlappingActors);
-	//		FCollisionResponseParams Params;
-	//		if (GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_WorldStatic, QueryParams, Params))
-	//		{
-	//			//相机传过去了
-	//			if (HitPortal.Component != LinkedPortal->PortalScenePlane)
-	//			{
-	//				bIsSynchronized = true;
-	//				LinkedPortal->bIsSynchronized = true;
-	//				//略有不同,没进传送门但是相机进了应该是传入linkedportal
-	//				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 bool ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, FVector PortalNormal)
@@ -285,8 +303,8 @@ bool ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, 
 	FVector LocalIntersectionPoint = PortalScenePlane->GetComponentTransform().InverseTransformPosition(IntersectionPoint); 
 
 	// 检查投影点是否在平面网格的边界内
-	bool bIsWithinBounds = FMath::Abs(LocalIntersectionPoint.X) <= PlaneSize.X * 0.5f &&
-		FMath::Abs(LocalIntersectionPoint.Y) <= PlaneSize.Y * 0.5f;
+	bool bIsWithinBounds = FMath::Abs(LocalIntersectionPoint.X) <= PlaneSize.X * 0.3f &&
+		FMath::Abs(LocalIntersectionPoint.Y) <= PlaneSize.Y * 0.3f;
 
 	if (bIsIntersecting && !bIsInFront && bLastInFront && bIsWithinBounds)
 	{
@@ -301,29 +319,22 @@ bool ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, 
 
 void ASPortal::TeleportPlayer()
 {
-	APawn* PlayerPawn = PC->GetPawn();
-	if (PlayerPawn)
-	{
-		//角色相对位置和相对旋转
-		FVector PlayerLocation = PlayerPawn->GetActorLocation();
-		FRotator PlayerRotation = PlayerPawn->GetActorRotation();
+	//角色相对位置和相对旋转
+	FVector PlayerLocation = PCM->GetActorLocation();
+	FRotator PlayerRotation = PCM->GetActorRotation();
 
-		FVector NewLocation = UpdateLocation(PlayerLocation, LinkedPortal);
-		FRotator NewRotation = UpdateRotation(PlayerRotation, LinkedPortal);
+	FVector NewLocation = UpdateLocation(PlayerLocation, LinkedPortal);
+	FRotator NewRotation = UpdateRotation(PlayerRotation, LinkedPortal);
 
-		PlayerPawn->SetActorLocationAndRotation(NewLocation, NewRotation);
+	PCM->SetActorLocationAndRotation(NewLocation, NewRotation);
 
-		FRotator PCRotation = PC->GetControlRotation();
-		FRotator PCNewRotation = UpdateRotation(PCRotation, LinkedPortal);
-		PC->SetControlRotation(PCNewRotation);
-	}
-	 
-	ACharacter* MyCharacter = Cast<ACharacter>(PlayerPawn);
-	if (MyCharacter) 
-	{
-		FVector OldVelocity = MyCharacter->GetCharacterMovement()->Velocity; 
-		MyCharacter->GetCharacterMovement()->Velocity = UpdateVelocity(OldVelocity, LinkedPortal); 
-	}
+	FRotator PCRotation = PC->GetControlRotation();
+	FRotator PCNewRotation = UpdateRotation(PCRotation, LinkedPortal);
+	PC->SetControlRotation(PCNewRotation);
+
+	FVector OldVelocity = PCM->GetCharacterMovement()->Velocity;
+	PCM->GetCharacterMovement()->Velocity = UpdateVelocity(OldVelocity, LinkedPortal);
+
 }
 
 FVector ASPortal::UpdateLocation(FVector OldLocation, ASPortal* OtherPortal)
@@ -404,16 +415,51 @@ FVector ASPortal::UpdateVelocity(FVector OldVelocity, ASPortal* OtherPortal)
 
 void ASPortal::UpdateLinkedCamera()
 {
-	APlayerCameraManager* CameraManager = PC->PlayerCameraManager;
-
 	//获取相机位置和旋转
-	FVector CameraLocation = CameraManager->GetTransformComponent()->GetComponentTransform().GetLocation();
-	FRotator CameraRotation = CameraManager->GetTransformComponent()->GetComponentTransform().GetRotation().Rotator(); 
+	FVector CameraLocation = PCM->GetPawnViewLocation();
+	FRotator CameraRotation = PCM->GetViewRotation(); 
 
 	//设置对应的PlayerCamera的位置和旋转
 	FVector NewLocation = LinkedPortal->UpdateLocation(CameraLocation, this);  
 	FRotator NewRotation = LinkedPortal->UpdateRotation(CameraRotation, this);
 
 	PlayerCamera->SetWorldLocationAndRotation(NewLocation, NewRotation);
+}
+
+void ASPortal::SetSceneMat()
+{
+	// 创建材质和设置材质
+	if (PortalMaterial)
+	{
+		//创建动态材质实例
+		UMaterialInstanceDynamic* PortalMAT = UMaterialInstanceDynamic::Create(PortalMaterial, this);
+		PortalScenePlane->SetMaterial(0, PortalMAT);
+
+		//获取视口大小,创建渲染目标
+		FVector2D ViewportSize;
+		UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport();
+		if (ViewportClient)
+		{
+			ViewportClient->GetViewportSize(ViewportSize);
+		}
+
+		int32 Width = FMath::TruncToInt(ViewportSize.X * PortalQuality);
+		int32 Height = FMath::TruncToInt(ViewportSize.Y * PortalQuality);
+
+		RenderTarget = NewObject<UTextureRenderTarget2D>();
+		if (RenderTarget)
+		{
+			RenderTarget->InitCustomFormat(Width, Height, PF_FloatRGBA, false);
+		}
+
+		//更新动态材质
+		PortalMAT->SetTextureParameterValue(FName("Texture"), RenderTarget);
+
+		if (LinkedPortal)
+		{
+			LinkedPortal->PortalSceneCapture->TextureTarget = RenderTarget;
+		}
+	}
+
 }
 

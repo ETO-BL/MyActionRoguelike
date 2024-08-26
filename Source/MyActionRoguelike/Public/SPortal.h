@@ -11,6 +11,7 @@ class UBoxComponent;
 class UCameraComponent;
 class UStaticMeshComponent;
 class USceneCaptureComponent2D;
+class UASCharacter;
 
 UCLASS()
 class MYACTIONROGUELIKE_API ASPortal : public AActor
@@ -21,32 +22,35 @@ public:
 	// Sets default values for this actor's properties
 	ASPortal();
 
-	UPROPERTY(EditAnywhere, Category = "LinkedPortal")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LinkedPortal")
 	TObjectPtr<ASPortal> LinkedPortal;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> PortalScenePlane;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> PortalTestPlane;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UBoxComponent> TeleportDetection;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UBoxComponent> PlayerNearByBounds;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USceneCaptureComponent2D> PortalSceneCapture;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UMaterial* PortalMaterial;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UArrowComponent* ForwardDirection;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UCameraComponent* PlayerCamera;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -55,18 +59,36 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float PortalQuality;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	FVector LastLocation;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	bool bLastInFront;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	bool bIsSynchronized;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	bool bIsCorssing;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	bool bIsCameraCorssing;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	APlayerController* PC;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	ACharacter* PCM;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	ACharacter* MirrorCharacter;
+
+	UPROPERTY()
+	FTimerHandle MessageTimerHandle;
+
+	FCriticalSection SyncCriticalSection;
+
 protected:
-
-	virtual void PostInitializeComponents()override;
-
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;
@@ -75,19 +97,30 @@ protected:
 
 	void CheckResolution();
 
+	UFUNCTION()
 	void SetClipPlanes();
 
+	UFUNCTION(BlueprintCallable)
 	void ShouldTeleport();
 
+	UFUNCTION(BlueprintCallable)
 	bool IsCrossingPortal(FVector ActorLocation, FVector PortalLocation, FVector PortalNormal);
 
+	UFUNCTION(BlueprintCallable)
 	void TeleportPlayer();
 
+	UFUNCTION(BlueprintCallable)
 	FVector UpdateLocation(FVector OldLocation, ASPortal* OtherPortal);
 
+	UFUNCTION(BlueprintCallable)
 	FRotator UpdateRotation(FRotator OldRotation, ASPortal* OtherPortal);
 
+	UFUNCTION(BlueprintCallable)
 	FVector UpdateVelocity(FVector OldVelocity, ASPortal* OtherPortal);
 
+	UFUNCTION(BlueprintCallable)
 	void UpdateLinkedCamera();
+
+	UFUNCTION()
+	void SetSceneMat();
 };
