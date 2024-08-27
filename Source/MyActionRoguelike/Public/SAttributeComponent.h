@@ -41,7 +41,7 @@ protected:
 	float MaxRage;
 
 	//NetMulticast用于瞬时的短暂的事件, 只在Server执行  reliable吃性能, unreliable用于优化
-	UFUNCTION(NetMulticast, Reliable) //@FixMe: mark as unreliable once we move the "State" out of character
+	UFUNCTION(NetMulticast, Unreliable) //@FixMe: mark as unreliable once we move the "State" out of character
 	void MulticastHealthChanged(AActor* Instigator, float Newhealth, float Delta);
 
 	UFUNCTION(NetMulticast, Unreliable) //@FixMe: mark as unreliable once we move the "State" out of character

@@ -62,26 +62,26 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	FVector LastLocation;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly, Replicated, BlueprintReadWrite)
 	bool bLastInFront;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly, Replicated, BlueprintReadWrite)
 	bool bIsSynchronized;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-	bool bIsCorssing;
+	UPROPERTY(VisibleDefaultsOnly, Replicated, BlueprintReadWrite)
+	bool bIsCrossing;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-	bool bIsCameraCorssing;
+	UPROPERTY(VisibleDefaultsOnly, Replicated, BlueprintReadWrite)
+	bool bIsInFront;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	APlayerController* PC;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-	ACharacter* PCM;
+	TObjectPtr<ACharacter> PCM;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-	ACharacter* MirrorCharacter;
+	TObjectPtr<ACharacter> MirrorCharacter;
 
 	UPROPERTY()
 	FTimerHandle MessageTimerHandle;
@@ -100,13 +100,13 @@ protected:
 	UFUNCTION()
 	void SetClipPlanes();
 
-	UFUNCTION(BlueprintCallable)
-	void ShouldTeleport();
+	//UFUNCTION(BlueprintCallable)
+	//void ShouldTeleport();
 
 	UFUNCTION(BlueprintCallable)
-	bool IsCrossingPortal(FVector ActorLocation, FVector PortalLocation, FVector PortalNormal);
+	void IsCrossingPortal(FVector ActorLocation, FVector PortalLocation, FVector PortalNormal);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void TeleportPlayer();
 
 	UFUNCTION(BlueprintCallable)

@@ -19,11 +19,11 @@ class MYACTIONROGUELIKE_API ASPlayerState : public APlayerState
 
 protected:
 	
-	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRe_Credits, Category = "Credits")
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_Credits, Category = "Credits")
 	float Credits;
 
 	UFUNCTION()
-	void OnRe_Credits(float OldCredits);
+	void OnRep_Credits(float OldCredits);
 
 	
 public:

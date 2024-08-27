@@ -33,7 +33,7 @@ void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* LoadObject)
 }
 
 //用于同步服务器
-void ASPlayerState::OnRe_Credits(float OldCredits)
+void ASPlayerState::OnRep_Credits(float OldCredits)
 {
 	OnCreditsChanged.Broadcast(this, Credits, Credits - OldCredits);
 }

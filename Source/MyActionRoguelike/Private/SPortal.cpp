@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/CameraComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ASPortal::ASPortal()
 {
@@ -41,6 +42,7 @@ ASPortal::ASPortal()
 	LinkedPortal = nullptr;
 	PortalQuality = 1.f;
 	PrimaryActorTick.bCanEverTick = true;
+	SetReplicates(true);
 }
 
 void ASPortal::BeginPlay()
@@ -138,150 +140,150 @@ void ASPortal::SetClipPlanes()
 	PortalSceneCapture->ClipPlaneNormal = ForwardVector;
 }
 
-void ASPortal::ShouldTeleport()
+//void ASPortal::ShouldTeleport()
+//{
+//	bool bISValid = false;
+//
+//	TArray<AActor*> OverlappingActors;
+//	PlayerNearByBounds->GetOverlappingActors(OverlappingActors);
+//	for (AActor* OverlappingActor : OverlappingActors)
+//	{
+//		if (!IsValid(OverlappingActor))
+//		{
+//			return;
+//		}
+//	}
+//	TArray<AActor*> TeleportActors;
+//	TeleportDetection->GetOverlappingActors(TeleportActors);
+//	for (AActor* OverlappingActor : OverlappingActors)
+//	{
+//		if (!IsValid(OverlappingActor))
+//		{
+//			bISValid = false;
+//			break;
+//		}
+//	}
+//
+//
+//	if (bISValid)
+//	{
+//		
+//		//用于判断是否穿过传送门
+//		FVector PlayerLocation = PCM->GetActorLocation();
+//		FVector PortalLocation = GetActorLocation();
+//		FVector PortalNormal = ForwardDirection->GetForwardVector();
+//
+//		bIsCorssing = IsCrossingPortal(PlayerLocation, PortalLocation, PortalNormal);
+//		//FVector CameraLocation = PCM->GetPawnViewLocation();
+//		//bIsCameraCorssing = IsCrossingPortal(CameraLocation, PortalLocation, PortalNormal);
+//		//UE_LOG(LogTemp, Warning, TEXT("IsCrossing: %s"), bIsCorssing ? TEXT("true") : TEXT("false"));
+//		//UE_LOG(LogTemp, Warning, TEXT("bIsCameraCorssing: %s"), bIsCameraCorssing ? TEXT("true") : TEXT("false"));
+//		//角色穿过portal
+//		if (bIsCorssing)
+//		{
+//			TeleportPlayer();
+//			//传送相机设置
+//			if (bIsSynchronized)
+//			{
+//				bIsSynchronized = false;
+//				LinkedPortal->bIsSynchronized = bIsSynchronized;
+//				PC->SetViewTargetWithBlend(this, VTBlend_Linear);
+//			}
+//			else
+//			{
+//				bIsSynchronized = true;
+//				LinkedPortal->bIsSynchronized = bIsSynchronized;
+//				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
+//			}
+//		}
+//		else
+//		{
+//#pragma region Preset
+//			FString Message = FString::Printf(TEXT("bIsSynchronized: %s"), bIsSynchronized ? TEXT("true") : TEXT("false"));
+//			GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Red, Message);
+//
+//			FHitResult HitPortal;
+//			FVector Start = PC->PlayerCameraManager->GetCameraLocation();
+//			FVector End;
+//			FCollisionQueryParams QueryParams;
+//			QueryParams.AddIgnoredActor(this);
+//			FCollisionResponseParams Params;
+//#pragma endregion
+//			if (bIsSynchronized)
+//			{
+//				End = PCM->GetActorLocation();
+//				GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+//				if (HitPortal.Component == PortalTestPlane)
+//				{
+//					UE_LOG(LogTemp, Warning, TEXT("HITCOMPONENT"));
+//					bIsSynchronized = false;
+//					LinkedPortal->bIsSynchronized = false;
+//					//略有不同,没进传送门但是相机进了应该是传入linkedportal
+//					PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
+//				}
+//			}
+//			else
+//			{
+//				End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
+//				GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+//				if (HitPortal.Component != LinkedPortal->PortalTestPlane)
+//				{
+//					UE_LOG(LogTemp, Warning, TEXT("Not HITCOMPONENT!"));
+//					bIsSynchronized = true;
+//					LinkedPortal->bIsSynchronized = true;
+//					//回来了
+//					PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
+//				}
+//			}
+//		}
+//	}
+//	else
+//	{
+//#pragma region Preset
+//		FString Message = FString::Printf(TEXT("bIsSynchronized: %s"), bIsSynchronized ? TEXT("true") : TEXT("false"));
+//		GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Red, Message);
+//
+//		FHitResult HitPortal;
+//		FVector Start = PC->PlayerCameraManager->GetCameraLocation();
+//		FVector End;
+//		FCollisionQueryParams QueryParams;
+//		QueryParams.AddIgnoredActor(this);
+//		FCollisionResponseParams Params;
+//#pragma endregion
+//		if (bIsSynchronized)
+//		{
+//			End = PCM->GetActorLocation();
+//			GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+//			if (HitPortal.Component == PortalTestPlane)
+//			{
+//				UE_LOG(LogTemp, Warning, TEXT("HITCOMPONENT"));
+//				bIsSynchronized = false;
+//				LinkedPortal->bIsSynchronized = false;
+//				//略有不同,没进传送门但是相机进了应该是传入linkedportal
+//				PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
+//			}
+//		}
+//		else
+//		{
+//			End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
+//			GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
+//			if (HitPortal.Component != LinkedPortal->PortalTestPlane)
+//			{
+//				UE_LOG(LogTemp, Warning, TEXT("Not HITCOMPONENT!"));
+//				bIsSynchronized = true;
+//				LinkedPortal->bIsSynchronized = true;
+//				//回来了
+//				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
+//			}
+//		}
+//	}
+//	
+//}
+
+void ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, FVector PortalNormal)
 {
-	bool bISValid = false;
-
-	TArray<AActor*> OverlappingActors;
-	PlayerNearByBounds->GetOverlappingActors(OverlappingActors);
-	for (AActor* OverlappingActor : OverlappingActors)
-	{
-		if (!IsValid(OverlappingActor))
-		{
-			return;
-		}
-	}
-	TArray<AActor*> TeleportActors;
-	TeleportDetection->GetOverlappingActors(TeleportActors);
-	for (AActor* OverlappingActor : OverlappingActors)
-	{
-		if (!IsValid(OverlappingActor))
-		{
-			bISValid = false;
-			break;
-		}
-	}
-
-
-	if (bISValid)
-	{
-		
-		//用于判断是否穿过传送门
-		FVector PlayerLocation = PCM->GetActorLocation();
-		FVector PortalLocation = GetActorLocation();
-		FVector PortalNormal = ForwardDirection->GetForwardVector();
-
-		bIsCorssing = IsCrossingPortal(PlayerLocation, PortalLocation, PortalNormal);
-		//FVector CameraLocation = PCM->GetPawnViewLocation();
-		//bIsCameraCorssing = IsCrossingPortal(CameraLocation, PortalLocation, PortalNormal);
-		//UE_LOG(LogTemp, Warning, TEXT("IsCrossing: %s"), bIsCorssing ? TEXT("true") : TEXT("false"));
-		//UE_LOG(LogTemp, Warning, TEXT("bIsCameraCorssing: %s"), bIsCameraCorssing ? TEXT("true") : TEXT("false"));
-		//角色穿过portal
-		if (bIsCorssing)
-		{
-			TeleportPlayer();
-			//传送相机设置
-			if (bIsSynchronized)
-			{
-				bIsSynchronized = false;
-				LinkedPortal->bIsSynchronized = bIsSynchronized;
-				PC->SetViewTargetWithBlend(this, VTBlend_Linear);
-			}
-			else
-			{
-				bIsSynchronized = true;
-				LinkedPortal->bIsSynchronized = bIsSynchronized;
-				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
-			}
-		}
-		else
-		{
-#pragma region Preset
-			FString Message = FString::Printf(TEXT("bIsSynchronized: %s"), bIsSynchronized ? TEXT("true") : TEXT("false"));
-			GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Red, Message);
-
-			FHitResult HitPortal;
-			FVector Start = PC->PlayerCameraManager->GetCameraLocation();
-			FVector End;
-			FCollisionQueryParams QueryParams;
-			QueryParams.AddIgnoredActor(this);
-			FCollisionResponseParams Params;
-#pragma endregion
-			if (bIsSynchronized)
-			{
-				End = PCM->GetActorLocation();
-				GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
-				if (HitPortal.Component == PortalTestPlane)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("HITCOMPONENT"));
-					bIsSynchronized = false;
-					LinkedPortal->bIsSynchronized = false;
-					//略有不同,没进传送门但是相机进了应该是传入linkedportal
-					PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
-				}
-			}
-			else
-			{
-				End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
-				GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
-				if (HitPortal.Component != LinkedPortal->PortalTestPlane)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Not HITCOMPONENT!"));
-					bIsSynchronized = true;
-					LinkedPortal->bIsSynchronized = true;
-					//回来了
-					PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
-				}
-			}
-		}
-	}
-	else
-	{
-#pragma region Preset
-		FString Message = FString::Printf(TEXT("bIsSynchronized: %s"), bIsSynchronized ? TEXT("true") : TEXT("false"));
-		GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Red, Message);
-
-		FHitResult HitPortal;
-		FVector Start = PC->PlayerCameraManager->GetCameraLocation();
-		FVector End;
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-		FCollisionResponseParams Params;
-#pragma endregion
-		if (bIsSynchronized)
-		{
-			End = PCM->GetActorLocation();
-			GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
-			if (HitPortal.Component == PortalTestPlane)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("HITCOMPONENT"));
-				bIsSynchronized = false;
-				LinkedPortal->bIsSynchronized = false;
-				//略有不同,没进传送门但是相机进了应该是传入linkedportal
-				PC->SetViewTargetWithBlend(LinkedPortal, VTBlend_Linear);
-			}
-		}
-		else
-		{
-			End = Start + PC->PlayerCameraManager->GetTransformComponent()->GetForwardVector() * 1000.f;
-			GetWorld()->LineTraceSingleByChannel(HitPortal, Start, End, ECC_GameTraceChannel1, QueryParams, Params);
-			if (HitPortal.Component != LinkedPortal->PortalTestPlane)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Not HITCOMPONENT!"));
-				bIsSynchronized = true;
-				LinkedPortal->bIsSynchronized = true;
-				//回来了
-				PC->SetViewTargetWithBlend(PC->GetCharacter(), VTBlend_Linear);
-			}
-		}
-	}
-	
-}
-
-bool ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, FVector PortalNormal)
-{
-	bool bIsInFront = false;
-	bool bIsCrossing = false;
+	bIsInFront = false;
+	bIsCrossing = false;
 
 	//是否通过了portal
 	float DotProductResult = FVector::DotProduct(PlayerLocation - PortalLocation, PortalNormal);
@@ -313,12 +315,17 @@ bool ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, 
 
 	bLastInFront = bIsInFront;
 	LastLocation = PlayerLocation;
-
-	return bIsCrossing;
 }
 
-void ASPortal::TeleportPlayer()
+void ASPortal::TeleportPlayer_Implementation()
 {
+	if (!PCM)
+	{
+		PC = GetWorld()->GetFirstPlayerController();
+		if (PC == nullptr) return;
+		PCM = Cast<ACharacter>(PC->GetCharacter());
+		if (PCM == nullptr) return;
+	}
 	//角色相对位置和相对旋转
 	FVector PlayerLocation = PCM->GetActorLocation();
 	FRotator PlayerRotation = PCM->GetActorRotation();
@@ -415,6 +422,13 @@ FVector ASPortal::UpdateVelocity(FVector OldVelocity, ASPortal* OtherPortal)
 
 void ASPortal::UpdateLinkedCamera()
 {
+	if (!PCM)
+	{
+		PC = GetWorld()->GetFirstPlayerController();
+		if (PC == nullptr) return;
+		PCM = Cast<ACharacter>(PC->GetCharacter());
+		if (PCM == nullptr) return;
+	}
 	//获取相机位置和旋转
 	FVector CameraLocation = PCM->GetPawnViewLocation();
 	FRotator CameraRotation = PCM->GetViewRotation(); 
@@ -463,3 +477,12 @@ void ASPortal::SetSceneMat()
 
 }
 
+void ASPortal::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPortal, bIsCrossing);
+	DOREPLIFETIME(ASPortal, bIsInFront);
+	DOREPLIFETIME(ASPortal, bIsSynchronized);
+	DOREPLIFETIME(ASPortal, bLastInFront);
+}
