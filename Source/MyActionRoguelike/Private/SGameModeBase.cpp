@@ -142,7 +142,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		UE_LOG(LogTemp, Warning, TEXT("Bot Spawning disabled Via 'CVarSpawnBots' "));
 		return;
 	}
-	//判断是否达到生成上线
+	//判断是否达到生成上限
 	int32 NumOfAliveBot = 0;
 	for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
 	{
@@ -206,7 +206,7 @@ void ASGameModeBase::OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Quer
 				TArray<FName> Bundle;
 				
 				//FStreamableDelegate不能用于蓝图,但可以传递动态数量的参数
-				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonterLoaded, SelectedRow->MonsterId, Locations[0]);
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonsterLoaded, SelectedRow->MonsterId, Locations[0]);
 				//需要时手动加载到内存
 				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundle, Delegate);
 			}
@@ -215,7 +215,7 @@ void ASGameModeBase::OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Quer
 }
 
 //加载后--创建Monster实例
-void ASGameModeBase::OnMonterLoaded(FPrimaryAssetId MonsterId, FVector SpawnLocation)
+void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId MonsterId, FVector SpawnLocation)
 {
 	UAssetManager* Manager = UAssetManager::GetIfValid();
 	if (Manager)
@@ -365,7 +365,7 @@ void ASGameModeBase::LoadSaveGame()
 				continue;
 			}
 
-			//遍历找到对应的Actor设置位置  是不是用TMap更好一点?
+			//遍历找到对应的Actor设置位置  是不是用TMap更好一点? -- 不会，因为是序列化，所以只能遍历
 			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
 			{
 				if (ActorData.ActorName == Actor->GetName())

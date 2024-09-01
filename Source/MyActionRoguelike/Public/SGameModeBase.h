@@ -104,7 +104,7 @@ protected:
 	UFUNCTION()
 	void OnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
-	void OnMonterLoaded(FPrimaryAssetId MonsterId, FVector SpawnLocation);
+	void OnMonsterLoaded(FPrimaryAssetId MonsterId, FVector SpawnLocation);
 
 public:
 
