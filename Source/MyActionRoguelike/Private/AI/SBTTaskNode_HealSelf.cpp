@@ -2,7 +2,7 @@
 
 
 #include "AI/SBTTaskNode_HealSelf.h"
-#include "SAttributeComponent.h"
+#include "ActionSystem/SAttributeComponent.h"
 #include "AIController.h"
 
 

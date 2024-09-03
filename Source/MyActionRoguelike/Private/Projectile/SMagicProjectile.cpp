@@ -1,18 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SMagicProjectile.h"
+#include "Projectile/SMagicProjectile.h"
 #include "Components/SphereComponent.h"
 #include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "SAttributeComponent.h"
+#include "ActionSystem/SAttributeComponent.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
 #include "GameplayFunctionLibrary.h"
-#include "SActionComponent.h"
-#include "SAction.h"
+#include "ActionSystem/SActionComponent.h"
+#include "ActionSystem/SAction.h"
 
 
 // Sets default values

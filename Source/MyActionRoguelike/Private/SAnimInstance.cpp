@@ -3,7 +3,7 @@
 
 #include "SAnimInstance.h"
 #include "GameplayTagContainer.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SActionComponent.h"
 
 //¿‡À∆beginplay
 void USAnimInstance::NativeInitializeAnimation()

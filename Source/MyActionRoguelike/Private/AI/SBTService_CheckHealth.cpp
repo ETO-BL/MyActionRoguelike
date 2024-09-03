@@ -2,7 +2,7 @@
 
 
 #include "AI/SBTService_CheckHealth.h"
-#include "SAttributeComponent.h"
+#include "ActionSystem/SAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 

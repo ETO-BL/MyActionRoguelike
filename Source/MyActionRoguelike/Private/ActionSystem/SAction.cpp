@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SAction.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SAction.h"
+#include "ActionSystem/SActionComponent.h"
 #include "Net/UnrealNetwork.h"
 
 

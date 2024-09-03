@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SProjectileBase.h"
+#include "Projectile/SProjectileBase.h"
 #include "DashProjectile.generated.h"
 
 /**

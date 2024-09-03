@@ -5,7 +5,7 @@
 #include "AIController.h"
 #include "Gameframework/Character.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "SAttributeComponent.h"
+#include "ActionSystem/SAttributeComponent.h"
 
 USBTTaskNode_RangedAttack::USBTTaskNode_RangedAttack()
 {

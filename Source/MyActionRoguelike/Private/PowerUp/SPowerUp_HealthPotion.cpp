@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SPowerUp_HealthPotion.h"
-#include "SAttributeComponent.h"
+#include "PowerUP/SPowerUp_HealthPotion.h"
+#include "ActionSystem/SAttributeComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "SPlayerState.h"
 

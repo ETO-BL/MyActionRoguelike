@@ -5,12 +5,12 @@
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "SAttributeComponent.h"
+#include "ActionSystem/SAttributeComponent.h"
 #include "BrainComponent.h"
 #include "SWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SActionComponent.h"
 
 // Sets default values
 ASAICharacter::ASAICharacter()

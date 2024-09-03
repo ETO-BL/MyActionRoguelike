@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SAction_Effect_Thorns.h"
-#include "SAttributeComponent.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SAction_Effect_Thorns.h"
+#include "ActionSystem/SAttributeComponent.h"
+#include "ActionSystem/SActionComponent.h"
 #include "GameplayFunctionLibrary.h"
 
 USAction_Effect_Thorns::USAction_Effect_Thorns()

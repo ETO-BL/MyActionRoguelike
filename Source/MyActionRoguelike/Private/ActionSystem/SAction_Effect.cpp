@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SAction_Effect.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SAction_Effect.h"
+#include "ActionSystem/SActionComponent.h"
 #include "GameFramework/GameStateBase.h"
 
 USAction_Effect::USAction_Effect()

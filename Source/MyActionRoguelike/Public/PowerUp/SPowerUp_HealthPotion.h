@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PowerUp_Actor.h"
+#include "PowerUP/PowerUp_Actor.h"
 #include "SPowerUp_HealthPotion.generated.h"
 
 /**

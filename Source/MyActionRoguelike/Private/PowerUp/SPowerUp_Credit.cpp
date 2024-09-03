@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SPowerUp_Credit.h"
+#include "PowerUP/SPowerUp_Credit.h"
 #include "SPlayerState.h"
 
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SProjectileBase.h"
+#include "Projectile/SProjectileBase.h"
 #include "GameplayTagContainer.h"
 #include "SMagicProjectile.generated.h"
 

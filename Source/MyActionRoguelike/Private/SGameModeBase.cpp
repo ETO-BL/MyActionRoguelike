@@ -11,9 +11,9 @@
 #include "SSaveGame.h"
 #include "SGameplayInterface.h"
 #include "SMonsterDataAsset.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SActionComponent.h"
 #include <Kismet/GameplayStatics.h>
-#include <SAttributeComponent.h>
+#include <ActionSystem/SAttributeComponent.h>
 #include "Engine/AssetManager.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 

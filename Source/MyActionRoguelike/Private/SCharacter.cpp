@@ -7,10 +7,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
 #include "Animation/AnimMontage.h"
-#include "SAttributeComponent.h"
+#include "ActionSystem/SAttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "SActionComponent.h"
+#include "ActionSystem/SActionComponent.h"
 
 
 // Sets default values
