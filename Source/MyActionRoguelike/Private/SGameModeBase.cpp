@@ -261,6 +261,7 @@ void ASGameModeBase::KillAll()
 
 void ASGameModeBase::KillActor(AActor* Victim, AActor* Killer)
 {
+	//如果玩家死亡
 	ASCharacter* Player = Cast<ASCharacter>(Victim);
 
 	if (Player)
@@ -274,6 +275,7 @@ void ASGameModeBase::KillActor(AActor* Victim, AActor* Killer)
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
 	}
 
+	//如果玩家没死,AI死了
 	APawn* KillerPawn = Cast<APawn>(Killer);
 	if (KillerPawn)
 	{

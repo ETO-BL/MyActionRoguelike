@@ -59,6 +59,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float PortalQuality;
 
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxDepth;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 CurrentDepth;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	FVector LastLocation;
 
@@ -78,7 +84,7 @@ protected:
 	APlayerController* PC;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-	TObjectPtr<ACharacter> PCM;
+	TObjectPtr<ACharacter>  PCM;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	TObjectPtr<ACharacter> MirrorCharacter;

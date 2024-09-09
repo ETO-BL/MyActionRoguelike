@@ -41,6 +41,7 @@ ASPortal::ASPortal()
 
 	LinkedPortal = nullptr;
 	PortalQuality = 1.f;
+	MaxDepth = 2;
 	PrimaryActorTick.bCanEverTick = true;
 	SetReplicates(true);
 }
@@ -319,13 +320,9 @@ void ASPortal::IsCrossingPortal(FVector PlayerLocation, FVector PortalLocation, 
 
 void ASPortal::TeleportPlayer_Implementation()
 {
-	if (!PCM)
-	{
-		PC = GetWorld()->GetFirstPlayerController();
-		if (PC == nullptr) return;
-		PCM = Cast<ACharacter>(PC->GetCharacter());
-		if (PCM == nullptr) return;
-	}
+	PCM = Cast<ACharacter>(PC->GetCharacter());
+	if (PCM == nullptr) return;
+	
 	//角色相对位置和相对旋转
 	FVector PlayerLocation = PCM->GetActorLocation();
 	FRotator PlayerRotation = PCM->GetActorRotation();
@@ -422,13 +419,10 @@ FVector ASPortal::UpdateVelocity(FVector OldVelocity, ASPortal* OtherPortal)
 
 void ASPortal::UpdateLinkedCamera()
 {
-	if (!PCM)
-	{
-		PC = GetWorld()->GetFirstPlayerController();
-		if (PC == nullptr) return;
-		PCM = Cast<ACharacter>(PC->GetCharacter());
-		if (PCM == nullptr) return;
-	}
+
+	PCM = Cast<ACharacter>(PC->GetCharacter());
+	if (PCM == nullptr) return;
+	
 	//获取相机位置和旋转
 	FVector CameraLocation = PCM->GetPawnViewLocation();
 	FRotator CameraRotation = PCM->GetViewRotation(); 

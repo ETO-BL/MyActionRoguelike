@@ -55,7 +55,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
 	TSubclassOf<UCameraShakeBase> AttackShake;
 
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 

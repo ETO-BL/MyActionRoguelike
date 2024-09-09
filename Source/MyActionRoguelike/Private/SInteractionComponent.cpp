@@ -7,7 +7,7 @@
 #include "SWorldUserWidget.h"
 #include "Engine/EngineTypes.h"
 
-static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("BL.DrawDebugInteraction"), true, TEXT("Enable Debug line and Sphere for Interaction"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("BL.DrawDebugInteraction"), false, TEXT("Enable Debug line and Sphere for Interaction"), ECVF_Cheat);
 
 
 USInteractionComponent::USInteractionComponent()
